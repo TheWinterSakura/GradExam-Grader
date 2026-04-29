@@ -5,7 +5,9 @@
 			<image class="avatar" src="/static/logo.png" mode="aspectFill"></image>
 			<view class="user-info">
 				<text class="username">{{ userInfo.name }}</text>
-				<text class="user-role">{{ userInfo.role }}</text>
+				<text class="user-role">学号：{{ userInfo.studentId }}</text>
+				<text class="user-role">{{ userInfo.college }}</text>
+				<text class="user-role">{{ userInfo.class }}</text>
 			</view>
 		</view>
 
@@ -18,24 +20,17 @@
 			<view class="stat-divider"></view>
 			<view class="stat-item">
 				<text class="stat-number">{{ stats.completed }}</text>
-				<text class="stat-label">已批改</text>
+				<text class="stat-label">已完成</text>
 			</view>
 			<view class="stat-divider"></view>
 			<view class="stat-item">
 				<text class="stat-number">{{ stats.pending }}</text>
-				<text class="stat-label">待批改</text>
+				<text class="stat-label">待完成</text>
 			</view>
 		</view>
 
 		<!-- 功能列表 -->
 		<view class="menu-list">
-			<view class="menu-item" @click="goToPage('history')">
-				<view class="menu-left">
-					<text class="menu-icon">📝</text>
-					<text class="menu-title">批改历史</text>
-				</view>
-				<text class="menu-arrow">›</text>
-			</view>
 			<view class="menu-item" @click="goToPage('settings')">
 				<view class="menu-left">
 					<text class="menu-icon">⚙️</text>
@@ -64,14 +59,23 @@
 		data() {
 			return {
 				userInfo: {
-					name: '李老师',
-					role: '考研辅导教师'
+					name: '张三',
+					studentId: '2024001',
+					college: '软件学院',
+					class: '2023级8班'
 				},
 				stats: {
 					total: 156,
 					completed: 128,
 					pending: 28
 				}
+			}
+		},
+		onShow() {
+			if (typeof this.$mp.page.getTabBar === 'function' && this.$mp.page.getTabBar()) {
+				this.$mp.page.getTabBar().setData({
+					selected: 3
+				})
 			}
 		},
 		methods: {
@@ -104,6 +108,7 @@
 		min-height: 100vh;
 		background-color: #f5f5f5;
 		padding: 30rpx;
+		padding-bottom: 80rpx;
 	}
 
 	.user-card {

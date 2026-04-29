@@ -1,0 +1,97 @@
+/* 水平间距 */
+/* 水平间距 */
+.container[data-v-4c1b26cf] {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding-bottom: 50px;
+}
+.message-list[data-v-4c1b26cf] {
+  padding: 15px;
+}
+.message-card[data-v-4c1b26cf] {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+.message-card[data-v-4c1b26cf]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #007AFF;
+  border-radius: 12px 0 0 12px;
+}
+.card-header[data-v-4c1b26cf] {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.course-tag[data-v-4c1b26cf] {
+  font-size: 13px;
+  color: #007AFF;
+  background-color: #e6f2ff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+.time[data-v-4c1b26cf] {
+  font-size: 12px;
+  color: #999;
+}
+.card-content[data-v-4c1b26cf] {
+  margin-bottom: 12px;
+}
+.message-title[data-v-4c1b26cf] {
+  font-size: 13px;
+  color: #666;
+  display: block;
+  margin-bottom: 6px;
+}
+.assignment-name[data-v-4c1b26cf] {
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+  display: block;
+  line-height: 1.4;
+}
+.card-footer[data-v-4c1b26cf] {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+.deadline[data-v-4c1b26cf] {
+  font-size: 13px;
+  color: #666;
+}
+.status-badge[data-v-4c1b26cf] {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+.status-badge.new[data-v-4c1b26cf] {
+  color: #ff6b6b;
+  background-color: #ffe6e6;
+}
+.status-badge.read[data-v-4c1b26cf] {
+  color: #999;
+  background-color: #f5f5f5;
+}
+.empty[data-v-4c1b26cf] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 100px 0;
+}
+.empty-text[data-v-4c1b26cf] {
+  font-size: 14px;
+  color: #999;
+}
