@@ -1,0 +1,121 @@
+
+.page.data-v-90506370 {
+		min-height: 100vh;
+		background-color: #f5f5f5;
+		padding: 30rpx;
+		padding-bottom: 150rpx;
+}
+.info-card.data-v-90506370 {
+		background-color: #007AFF;
+		border-radius: 16rpx;
+		padding: 30rpx;
+		margin-bottom: 20rpx;
+		display: flex;
+		flex-direction: column;
+		gap: 10rpx;
+}
+.student-name.data-v-90506370 {
+		font-size: 36rpx;
+		font-weight: bold;
+		color: #fff;
+}
+.assignment-title.data-v-90506370 {
+		font-size: 28rpx;
+		color: rgba(255, 255, 255, 0.9);
+}
+.content-card.data-v-90506370 {
+		background-color: #fff;
+		border-radius: 16rpx;
+		padding: 30rpx;
+		margin-bottom: 20rpx;
+}
+.section-title.data-v-90506370 {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #333;
+		margin-bottom: 20rpx;
+}
+.content-preview.data-v-90506370 {
+		font-size: 28rpx;
+		color: #666;
+		line-height: 1.8;
+		white-space: pre-wrap;
+		max-height: 300rpx;
+		overflow-y: auto;
+}
+.grading-card.data-v-90506370 {
+		background-color: #fff;
+		border-radius: 16rpx;
+		padding: 30rpx;
+		margin-bottom: 20rpx;
+}
+.score-input-wrapper.data-v-90506370 {
+		display: flex;
+		align-items: center;
+		gap: 20rpx;
+}
+.score-input.data-v-90506370 {
+		flex: 1;
+		height: 80rpx;
+		padding: 0 30rpx;
+		font-size: 32rpx;
+		border: 2rpx solid #e0e0e0;
+		border-radius: 12rpx;
+}
+.score-unit.data-v-90506370 {
+		font-size: 28rpx;
+		color: #666;
+}
+.comment-input.data-v-90506370 {
+		width: 100%;
+		min-height: 200rpx;
+		padding: 20rpx;
+		font-size: 28rpx;
+		border: 2rpx solid #e0e0e0;
+		border-radius: 12rpx;
+		box-sizing: border-box;
+}
+.char-count.data-v-90506370 {
+		text-align: right;
+		font-size: 24rpx;
+		color: #999;
+		margin-top: 10rpx;
+}
+.quick-comments.data-v-90506370 {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 20rpx;
+}
+.comment-tag.data-v-90506370 {
+		padding: 12rpx 24rpx;
+		background-color: #f5f5f5;
+		border-radius: 8rpx;
+		font-size: 26rpx;
+		color: #666;
+}
+.action-bar.data-v-90506370 {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		padding: 20rpx 30rpx;
+		background-color: #fff;
+		box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+		display: flex;
+		gap: 20rpx;
+}
+.action-btn.data-v-90506370 {
+		flex: 1;
+		height: 88rpx;
+		border-radius: 44rpx;
+		font-size: 32rpx;
+		border: none;
+}
+.action-btn.cancel.data-v-90506370 {
+		background-color: #f5f5f5;
+		color: #666;
+}
+.action-btn.primary.data-v-90506370 {
+		background-color: #007AFF;
+		color: #fff;
+}

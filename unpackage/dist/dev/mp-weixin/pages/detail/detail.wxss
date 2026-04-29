@@ -1,0 +1,117 @@
+
+.page.data-v-eca06f3c {
+		min-height: 100vh;
+		background-color: #f5f5f5;
+		padding: 30rpx;
+		padding-bottom: 150rpx;
+}
+.detail-card.data-v-eca06f3c {
+		background-color: #fff;
+		border-radius: 16rpx;
+		padding: 30rpx;
+		margin-bottom: 20rpx;
+}
+.card-header.data-v-eca06f3c {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 30rpx;
+		padding-bottom: 20rpx;
+		border-bottom: 1rpx solid #f0f0f0;
+}
+.card-title.data-v-eca06f3c {
+		font-size: 36rpx;
+		font-weight: bold;
+		color: #333;
+		flex: 1;
+}
+.info-section.data-v-eca06f3c {
+		display: flex;
+		flex-direction: column;
+		gap: 20rpx;
+}
+.info-row.data-v-eca06f3c {
+		display: flex;
+		font-size: 28rpx;
+}
+.label.data-v-eca06f3c {
+		color: #666;
+		width: 180rpx;
+}
+.value.data-v-eca06f3c {
+		color: #333;
+		flex: 1;
+}
+.value.score.data-v-eca06f3c {
+		color: #ff6b6b;
+		font-weight: bold;
+}
+.content-card.data-v-eca06f3c {
+		background-color: #fff;
+		border-radius: 16rpx;
+		padding: 30rpx;
+		margin-bottom: 20rpx;
+}
+.section-title.data-v-eca06f3c {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #333;
+		margin-bottom: 20rpx;
+}
+.content-text.data-v-eca06f3c {
+		font-size: 28rpx;
+		color: #666;
+		line-height: 1.8;
+		white-space: pre-wrap;
+}
+.attachment-list.data-v-eca06f3c {
+		display: flex;
+		flex-direction: column;
+		gap: 20rpx;
+}
+.attachment-item.data-v-eca06f3c {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 20rpx;
+		background-color: #f5f5f5;
+		border-radius: 12rpx;
+}
+.attachment-name.data-v-eca06f3c {
+		font-size: 28rpx;
+		color: #333;
+		flex: 1;
+}
+.attachment-btn.data-v-eca06f3c {
+		font-size: 26rpx;
+		color: #007AFF;
+}
+.comment-text.data-v-eca06f3c {
+		font-size: 28rpx;
+		color: #666;
+		line-height: 1.8;
+		padding: 20rpx;
+		background-color: #fff9e6;
+		border-radius: 12rpx;
+		border-left: 4rpx solid #ffc107;
+}
+.action-bar.data-v-eca06f3c {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		padding: 20rpx 30rpx;
+		background-color: #fff;
+		box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+.action-btn.data-v-eca06f3c {
+		width: 100%;
+		height: 88rpx;
+		border-radius: 44rpx;
+		font-size: 32rpx;
+		border: none;
+}
+.action-btn.primary.data-v-eca06f3c {
+		background-color: #007AFF;
+		color: #fff;
+}
