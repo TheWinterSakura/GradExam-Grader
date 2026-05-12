@@ -2,21 +2,30 @@
 	<view class="page">
 		<!-- 学生信息 -->
 		<view class="info-card">
-			<text class="student-name">{{ assignment.studentName }}</text>
-			<text class="assignment-title">{{ assignment.title }}</text>
+			<view class="info-bar"></view>
+			<view class="info-body">
+				<text class="student-name">{{ assignment.studentName }}</text>
+				<text class="assignment-title">{{ assignment.title }}</text>
+			</view>
 		</view>
 
 		<!-- 作业内容预览 -->
 		<view class="content-card">
-			<view class="section-title">作业内容</view>
+			<view class="section-header">
+				<view class="section-dot"></view>
+				<text class="section-title">作业内容</text>
+			</view>
 			<view class="content-preview">
 				{{ assignment.content }}
 			</view>
 		</view>
 
 		<!-- 评分 -->
-		<view class="grading-card">
-			<view class="section-title">评分</view>
+		<view class="content-card">
+			<view class="section-header">
+				<view class="section-dot"></view>
+				<text class="section-title">评分</text>
+			</view>
 			<view class="score-input-wrapper">
 				<input class="score-input" type="digit" v-model="score" placeholder="请输入分数" />
 				<text class="score-unit">分</text>
@@ -24,26 +33,41 @@
 		</view>
 
 		<!-- 批改意见 -->
-		<view class="grading-card">
-			<view class="section-title">批改意见</view>
+		<view class="content-card">
+			<view class="section-header">
+				<view class="section-dot"></view>
+				<text class="section-title">批改意见</text>
+			</view>
 			<textarea class="comment-input" v-model="comment" placeholder="请输入批改意见..." maxlength="500" />
 			<view class="char-count">{{ comment.length }}/500</view>
 		</view>
 
 		<!-- 快捷评语 -->
-		<view class="grading-card">
-			<view class="section-title">快捷评语</view>
+		<view class="content-card">
+			<view class="section-header">
+				<view class="section-dot"></view>
+				<text class="section-title">快捷评语</text>
+			</view>
 			<view class="quick-comments">
-				<view class="comment-tag" v-for="(tag, index) in quickComments" :key="index" @click="addQuickComment(tag)">
+				<view
+					class="comment-tag"
+					v-for="(tag, index) in quickComments"
+					:key="index"
+					@click="addQuickComment(tag)"
+				>
 					{{ tag }}
 				</view>
 			</view>
 		</view>
 
 		<!-- 提交按钮 -->
-		<view class="action-bar">
-			<button class="action-btn cancel" @click="cancel">取消</button>
-			<button class="action-btn primary" @click="submit">提交批改</button>
+		<view class="submit-section">
+			<view class="action-btn cancel" @click="cancel">
+				<text class="btn-label">取消</text>
+			</view>
+			<view class="action-btn primary" @click="submit">
+				<text class="btn-label white">提交批改</text>
+			</view>
 		</view>
 	</view>
 </template>
@@ -109,7 +133,6 @@
 					content: '确认提交批改结果？',
 					success: (res) => {
 						if (res.confirm) {
-							// 这里提交批改数据
 							uni.showToast({
 								title: '提交成功',
 								icon: 'success'
@@ -130,140 +153,182 @@
 <style scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #f5f5f5;
-		padding: 30rpx;
-		padding-bottom: 150rpx;
+		background-color: #F2F3F7;
+		padding: 16px 16px 40px;
 	}
 
+	/* 学生信息 */
 	.info-card {
-		background-color: #007AFF;
-		border-radius: 16rpx;
-		padding: 30rpx;
-		margin-bottom: 20rpx;
+		display: flex;
+		background-color: #FFFFFF;
+		border-radius: 14px;
+		margin-bottom: 14px;
+		overflow: hidden;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+	}
+
+	.info-bar {
+		width: 4px;
+		flex-shrink: 0;
+		background: linear-gradient(180deg, #4F6EF7, #7B8FF7);
+		border-radius: 2px;
+	}
+
+	.info-body {
+		flex: 1;
+		padding: 18px 20px;
 		display: flex;
 		flex-direction: column;
-		gap: 10rpx;
+		gap: 6px;
 	}
 
 	.student-name {
-		font-size: 36rpx;
-		font-weight: bold;
-		color: #fff;
+		font-size: 20px;
+		font-weight: 700;
+		color: #1A1A2E;
 	}
 
 	.assignment-title {
-		font-size: 28rpx;
-		color: rgba(255, 255, 255, 0.9);
+		font-size: 14px;
+		color: #6B7280;
 	}
 
+	/* 内容卡片 */
 	.content-card {
-		background-color: #fff;
-		border-radius: 16rpx;
-		padding: 30rpx;
-		margin-bottom: 20rpx;
+		background-color: #FFFFFF;
+		border-radius: 14px;
+		padding: 20px;
+		margin-bottom: 14px;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+	}
+
+	.section-header {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-bottom: 14px;
+	}
+
+	.section-dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background-color: #4F6EF7;
 	}
 
 	.section-title {
-		font-size: 32rpx;
-		font-weight: bold;
-		color: #333;
-		margin-bottom: 20rpx;
+		font-size: 16px;
+		font-weight: 600;
+		color: #1A1A2E;
 	}
 
 	.content-preview {
-		font-size: 28rpx;
-		color: #666;
-		line-height: 1.8;
+		font-size: 15px;
+		color: #6B7280;
+		line-height: 1.9;
 		white-space: pre-wrap;
-		max-height: 300rpx;
+		max-height: 160px;
 		overflow-y: auto;
 	}
 
-	.grading-card {
-		background-color: #fff;
-		border-radius: 16rpx;
-		padding: 30rpx;
-		margin-bottom: 20rpx;
-	}
-
+	/* 评分输入 */
 	.score-input-wrapper {
 		display: flex;
 		align-items: center;
-		gap: 20rpx;
+		gap: 12px;
 	}
 
 	.score-input {
 		flex: 1;
-		height: 80rpx;
-		padding: 0 30rpx;
-		font-size: 32rpx;
-		border: 2rpx solid #e0e0e0;
-		border-radius: 12rpx;
+		height: 48px;
+		padding: 0 16px;
+		font-size: 16px;
+		background-color: #F8F9FC;
+		border: 1px solid #E5E7EB;
+		border-radius: 10px;
 	}
 
 	.score-unit {
-		font-size: 28rpx;
-		color: #666;
+		font-size: 15px;
+		color: #6B7280;
+		font-weight: 500;
 	}
 
+	/* 评语输入 */
 	.comment-input {
 		width: 100%;
-		min-height: 200rpx;
-		padding: 20rpx;
-		font-size: 28rpx;
-		border: 2rpx solid #e0e0e0;
-		border-radius: 12rpx;
+		min-height: 120px;
+		padding: 14px;
+		font-size: 15px;
+		background-color: #F8F9FC;
+		border: 1px solid #E5E7EB;
+		border-radius: 10px;
 		box-sizing: border-box;
+		color: #1A1A2E;
 	}
 
 	.char-count {
 		text-align: right;
-		font-size: 24rpx;
-		color: #999;
-		margin-top: 10rpx;
+		font-size: 12px;
+		color: #9CA3AF;
+		margin-top: 8px;
 	}
 
+	/* 快捷评语 */
 	.quick-comments {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 20rpx;
+		gap: 10px;
 	}
 
 	.comment-tag {
-		padding: 12rpx 24rpx;
-		background-color: #f5f5f5;
-		border-radius: 8rpx;
-		font-size: 26rpx;
-		color: #666;
+		padding: 8px 16px;
+		background-color: #F2F3F7;
+		border-radius: 8px;
+		font-size: 13px;
+		color: #6B7280;
+		transition: all 0.2s ease;
 	}
 
-	.action-bar {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		padding: 20rpx 30rpx;
-		background-color: #fff;
-		box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.05);
+	.comment-tag:active {
+		background-color: #4F6EF7;
+		color: #FFFFFF;
+	}
+
+	/* 提交按钮 */
+	.submit-section {
 		display: flex;
-		gap: 20rpx;
+		gap: 14px;
+		margin-top: 6px;
 	}
 
 	.action-btn {
 		flex: 1;
-		height: 88rpx;
-		border-radius: 44rpx;
-		font-size: 32rpx;
-		border: none;
+		height: 48px;
+		border-radius: 24px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.action-btn.cancel {
-		background-color: #f5f5f5;
-		color: #666;
+		background-color: #FFFFFF;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 	}
 
 	.action-btn.primary {
-		background-color: #007AFF;
-		color: #fff;
+		background-color: #4F6EF7;
+		box-shadow: 0 4px 14px rgba(79, 110, 247, 0.3);
+	}
+
+	.btn-label {
+		font-size: 16px;
+		color: #6B7280;
+		font-weight: 500;
+	}
+
+	.btn-label.white {
+		color: #FFFFFF;
+		font-weight: 600;
 	}
 </style>

@@ -1,26 +1,30 @@
 <template>
-	<view class="container">
+	<view class="page">
 		<view class="message-list">
 			<view class="message-card" v-for="msg in messageList" :key="msg.id" @click="goToAssignment(msg)">
-				<view class="card-header">
-					<view class="course-tag">{{ msg.courseName }}</view>
-					<text class="time">{{ msg.time }}</text>
-				</view>
-				<view class="card-content">
-					<text class="message-title">发布新作业</text>
-					<text class="assignment-name">{{ msg.assignmentName }}</text>
-				</view>
-				<view class="card-footer">
-					<text class="deadline">截止时间：{{ msg.deadline }}</text>
-					<view class="status-badge" :class="msg.isNew ? 'new' : 'read'">
-						{{ msg.isNew ? '未读' : '已读' }}
+				<view class="card-indicator" :class="{ new: msg.isNew }"></view>
+				<view class="card-body">
+					<view class="card-header">
+						<view class="course-tag">{{ msg.courseName }}</view>
+						<text class="time">{{ msg.time }}</text>
+					</view>
+					<view class="card-content">
+						<text class="message-title">发布新作业</text>
+						<text class="assignment-name">{{ msg.assignmentName }}</text>
+					</view>
+					<view class="card-footer">
+						<text class="deadline">
+							<uni-icons type="calendar" :size="12" color="#9CA3AF" style="margin-right: 3px;"></uni-icons>
+							截止：{{ msg.deadline }}
+						</text>
+						<view class="status-dot" :class="msg.isNew ? 'new' : 'read'"></view>
 					</view>
 				</view>
 			</view>
 		</view>
-		
-		<!-- 空状态 -->
+
 		<view class="empty" v-if="messageList.length === 0">
+			<uni-icons type="chat" :size="48" color="#D1D5DB"></uni-icons>
 			<text class="empty-text">暂无消息</text>
 		</view>
 	</view>
@@ -83,7 +87,7 @@ export default {
 		}
 	},
 	onLoad() {
-		
+
 	},
 	onShow() {
 		if (typeof this.$mp.page.getTabBar === 'function' && this.$mp.page.getTabBar()) {
@@ -96,55 +100,60 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.container {
+.page {
 	min-height: 100vh;
-	background-color: #f5f5f5;
-	padding-bottom: 50px;
+	background-color: #F2F3F7;
+	padding-bottom: 60px;
 }
 
 .message-list {
-	padding: 15px;
+	padding: 16px;
 }
 
 .message-card {
-	background-color: #fff;
-	border-radius: 12px;
-	padding: 16px;
+	display: flex;
+	background-color: #FFFFFF;
+	border-radius: 14px;
 	margin-bottom: 12px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-	position: relative;
+	overflow: hidden;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }
 
-.message-card::before {
-	content: '';
-	position: absolute;
-	left: 0;
-	top: 0;
-	bottom: 0;
+.card-indicator {
 	width: 4px;
-	background-color: #007AFF;
-	border-radius: 12px 0 0 12px;
+	flex-shrink: 0;
+	background-color: #E5E7EB;
+	transition: background-color 0.3s ease;
+}
+
+.card-indicator.new {
+	background-color: #4F6EF7;
+}
+
+.card-body {
+	flex: 1;
+	padding: 16px 18px;
 }
 
 .card-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 12px;
+	margin-bottom: 10px;
 }
 
 .course-tag {
-	font-size: 13px;
-	color: #007AFF;
-	background-color: #e6f2ff;
-	padding: 4px 12px;
-	border-radius: 12px;
+	font-size: 12px;
+	color: #4F6EF7;
+	background-color: #EEF1FE;
+	padding: 3px 10px;
+	border-radius: 6px;
 	font-weight: 500;
 }
 
 .time {
 	font-size: 12px;
-	color: #999;
+	color: #9CA3AF;
 }
 
 .card-content {
@@ -152,16 +161,16 @@ export default {
 }
 
 .message-title {
-	font-size: 13px;
-	color: #666;
+	font-size: 12px;
+	color: #9CA3AF;
 	display: block;
-	margin-bottom: 6px;
+	margin-bottom: 4px;
 }
 
 .assignment-name {
 	font-size: 16px;
-	color: #333;
-	font-weight: bold;
+	color: #1A1A2E;
+	font-weight: 600;
 	display: block;
 	line-height: 1.4;
 }
@@ -171,40 +180,42 @@ export default {
 	justify-content: space-between;
 	align-items: center;
 	padding-top: 12px;
-	border-top: 1px solid #f0f0f0;
+	border-top: 1px solid #F3F4F6;
 }
 
 .deadline {
-	font-size: 13px;
-	color: #666;
-}
-
-.status-badge {
 	font-size: 12px;
-	padding: 3px 10px;
-	border-radius: 10px;
-	font-weight: 500;
+	color: #9CA3AF;
+	display: flex;
+	align-items: center;
 }
 
-.status-badge.new {
-	color: #ff6b6b;
-	background-color: #ffe6e6;
+.status-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
 }
 
-.status-badge.read {
-	color: #999;
-	background-color: #f5f5f5;
+.status-dot.new {
+	background-color: #FF3B30;
+	box-shadow: 0 0 6px rgba(255, 59, 48, 0.4);
+}
+
+.status-dot.read {
+	background-color: #E5E7EB;
 }
 
 .empty {
 	display: flex;
-	justify-content: center;
+	flex-direction: column;
 	align-items: center;
-	padding: 100px 0;
+	justify-content: center;
+	padding: 120px 0;
+	gap: 12px;
 }
 
 .empty-text {
-	font-size: 14px;
-	color: #999;
+	font-size: 15px;
+	color: #9CA3AF;
 }
 </style>

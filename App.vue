@@ -13,16 +13,23 @@
 </script>
 
 <style lang="scss">
-	/*每个页面公共css */
 	@import '@/uni_modules/uni-scss/index.scss';
 	/* #ifndef APP-NVUE */
 	@import '@/static/customicons.css';
-	// 设置整个项目的背景色
+
 	page {
-		background-color: #f5f5f5;
+		background-color: #F2F3F7;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+			'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		font-size: 28rpx;
+		color: #1A1A2E;
+		line-height: 1.6;
 	}
 
 	/* #endif */
+
 	.example-info {
 		font-size: 14px;
 		color: #333;

@@ -2,54 +2,58 @@
 	<view class="page">
 		<!-- 用户信息卡片 -->
 		<view class="user-card">
-			<image class="avatar" src="/static/logo.png" mode="aspectFill"></image>
+			<view class="user-avatar">
+				<image class="avatar-img" src="/static/logo.png" mode="aspectFill"></image>
+			</view>
 			<view class="user-info">
 				<text class="username">{{ userInfo.name }}</text>
-				<text class="user-role">学号：{{ userInfo.studentId }}</text>
-				<text class="user-role">{{ userInfo.college }}</text>
-				<text class="user-role">{{ userInfo.class }}</text>
+				<text class="user-detail">{{ userInfo.college }} · {{ userInfo.class }}</text>
+				<text class="user-detail">学号 {{ userInfo.studentId }}</text>
 			</view>
 		</view>
 
 		<!-- 统计数据 -->
-		<view class="stats-card">
-			<view class="stat-item">
+		<view class="stats-row">
+			<view class="stat-card">
 				<text class="stat-number">{{ stats.total }}</text>
 				<text class="stat-label">总作业数</text>
 			</view>
-			<view class="stat-divider"></view>
-			<view class="stat-item">
-				<text class="stat-number">{{ stats.completed }}</text>
+			<view class="stat-card">
+				<text class="stat-number done">{{ stats.completed }}</text>
 				<text class="stat-label">已完成</text>
 			</view>
-			<view class="stat-divider"></view>
-			<view class="stat-item">
-				<text class="stat-number">{{ stats.pending }}</text>
+			<view class="stat-card">
+				<text class="stat-number pending">{{ stats.pending }}</text>
 				<text class="stat-label">待完成</text>
 			</view>
 		</view>
 
 		<!-- 功能列表 -->
-		<view class="menu-list">
-			<view class="menu-item" @click="goToPage('settings')">
-				<view class="menu-left">
-					<text class="menu-icon">⚙️</text>
-					<text class="menu-title">设置</text>
+		<view class="menu-section">
+			<view class="menu-card">
+				<view class="menu-item" @click="goToPage('settings')">
+					<view class="menu-left">
+						<uni-icons type="gear" :size="20" color="#6B7280"></uni-icons>
+						<text class="menu-title">设置</text>
+					</view>
+					<uni-icons type="arrowright" :size="16" color="#D1D5DB"></uni-icons>
 				</view>
-				<text class="menu-arrow">›</text>
-			</view>
-			<view class="menu-item" @click="goToPage('about')">
-				<view class="menu-left">
-					<text class="menu-icon">ℹ️</text>
-					<text class="menu-title">关于</text>
+				<view class="menu-divider"></view>
+				<view class="menu-item" @click="goToPage('about')">
+					<view class="menu-left">
+						<uni-icons type="info" :size="20" color="#6B7280"></uni-icons>
+						<text class="menu-title">关于</text>
+					</view>
+					<uni-icons type="arrowright" :size="16" color="#D1D5DB"></uni-icons>
 				</view>
-				<text class="menu-arrow">›</text>
 			</view>
 		</view>
 
 		<!-- 退出登录 -->
 		<view class="logout-section">
-			<button class="logout-btn" @click="logout">退出登录</button>
+			<view class="logout-btn" @click="logout">
+				<text class="logout-text">退出登录</text>
+			</view>
 		</view>
 	</view>
 </template>
@@ -106,127 +110,139 @@
 <style scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #f5f5f5;
-		padding: 30rpx;
-		padding-bottom: 80rpx;
+		background-color: #F2F3F7;
+		padding: 20px 16px 80px;
 	}
 
+	/* 用户信息 */
 	.user-card {
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		border-radius: 16rpx;
-		padding: 40rpx;
+		background-color: #FFFFFF;
+		border-radius: 16px;
+		padding: 24px;
 		display: flex;
 		align-items: center;
-		gap: 30rpx;
-		margin-bottom: 20rpx;
+		gap: 16px;
+		margin-bottom: 16px;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 	}
 
-	.avatar {
-		width: 120rpx;
-		height: 120rpx;
-		border-radius: 60rpx;
-		background-color: #fff;
+	.user-avatar {
+		flex-shrink: 0;
+	}
+
+	.avatar-img {
+		width: 64px;
+		height: 64px;
+		border-radius: 50%;
+		background-color: #F2F3F7;
+		border: 2px solid #F3F4F6;
 	}
 
 	.user-info {
 		display: flex;
 		flex-direction: column;
-		gap: 10rpx;
+		gap: 4px;
 	}
 
 	.username {
-		font-size: 36rpx;
-		font-weight: bold;
-		color: #fff;
+		font-size: 20px;
+		font-weight: 700;
+		color: #1A1A2E;
 	}
 
-	.user-role {
-		font-size: 26rpx;
-		color: rgba(255, 255, 255, 0.9);
+	.user-detail {
+		font-size: 13px;
+		color: #9CA3AF;
 	}
 
-	.stats-card {
-		background-color: #fff;
-		border-radius: 16rpx;
-		padding: 40rpx;
+	/* 统计数据 */
+	.stats-row {
 		display: flex;
-		justify-content: space-around;
-		margin-bottom: 20rpx;
+		gap: 10px;
+		margin-bottom: 16px;
 	}
 
-	.stat-item {
+	.stat-card {
+		flex: 1;
+		background-color: #FFFFFF;
+		border-radius: 14px;
+		padding: 18px 12px;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 10rpx;
+		gap: 6px;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 	}
 
 	.stat-number {
-		font-size: 48rpx;
-		font-weight: bold;
-		color: #007AFF;
+		font-size: 28px;
+		font-weight: 700;
+		color: #4F6EF7;
+	}
+
+	.stat-number.done {
+		color: #34C759;
+	}
+
+	.stat-number.pending {
+		color: #FF9500;
 	}
 
 	.stat-label {
-		font-size: 26rpx;
-		color: #666;
+		font-size: 12px;
+		color: #9CA3AF;
 	}
 
-	.stat-divider {
-		width: 2rpx;
-		background-color: #f0f0f0;
+	/* 菜单 */
+	.menu-section {
+		margin-bottom: 24px;
 	}
 
-	.menu-list {
-		background-color: #fff;
-		border-radius: 16rpx;
+	.menu-card {
+		background-color: #FFFFFF;
+		border-radius: 14px;
 		overflow: hidden;
-		margin-bottom: 20rpx;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 	}
 
 	.menu-item {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 30rpx;
-		border-bottom: 1rpx solid #f0f0f0;
-	}
-
-	.menu-item:last-child {
-		border-bottom: none;
+		padding: 16px 20px;
 	}
 
 	.menu-left {
 		display: flex;
 		align-items: center;
-		gap: 20rpx;
-	}
-
-	.menu-icon {
-		font-size: 40rpx;
+		gap: 12px;
 	}
 
 	.menu-title {
-		font-size: 30rpx;
-		color: #333;
+		font-size: 15px;
+		color: #1A1A2E;
 	}
 
-	.menu-arrow {
-		font-size: 48rpx;
-		color: #ccc;
+	.menu-divider {
+		height: 1px;
+		background-color: #F3F4F6;
+		margin: 0 20px;
 	}
 
-	.logout-section {
-		margin-top: 40rpx;
-	}
-
+	/* 退出登录 */
 	.logout-btn {
-		width: 100%;
-		height: 88rpx;
-		background-color: #fff;
-		color: #ff6b6b;
-		font-size: 32rpx;
-		border-radius: 44rpx;
-		border: none;
+		background-color: #FFFFFF;
+		border-radius: 14px;
+		padding: 16px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+	}
+
+	.logout-text {
+		font-size: 15px;
+		color: #FF3B30;
+		font-weight: 500;
 	}
 </style>
