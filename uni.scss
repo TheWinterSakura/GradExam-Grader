@@ -1,1 +1,67 @@
+// ========================================
+// 考研作业批改系统 — 极简白底设计 Token
+// ========================================
+
+// 间距基础倍数
+$uni-space-root: 2;
+// 边框半径默认值
+$uni-radius-root: 6px;
+
+// 主色 — 柔和靛蓝，学术感
+$uni-primary: #4F6EF7;
+$uni-primary-disable: mix(#fff, $uni-primary, 50%);
+$uni-primary-light: mix(#fff, $uni-primary, 85%);
+$uni-primary-bg: mix(#fff, $uni-primary, 92%);
+
+// 辅助色
+$uni-success: #34C759;
+$uni-success-disable: mix(#fff, $uni-success, 50%);
+$uni-success-light: mix(#fff, $uni-success, 85%);
+
+$uni-warning: #FF9500;
+$uni-warning-disable: mix(#fff, $uni-warning, 50%);
+$uni-warning-light: mix(#fff, $uni-warning, 85%);
+
+$uni-error: #FF3B30;
+$uni-error-disable: mix(#fff, $uni-error, 50%);
+$uni-error-light: mix(#fff, $uni-error, 85%);
+
+$uni-info: #8f939c;
+$uni-info-disable: mix(#fff, $uni-info, 50%);
+$uni-info-light: mix(#fff, $uni-info, 80%);
+
+// 中性色 — 文字层级
+$uni-main-color: #1A1A2E;       // 主要文字
+$uni-base-color: #6B7280;       // 常规文字
+$uni-secondary-color: #9CA3AF;  // 次要文字
+$uni-extra-color: #D1D5DB;      // 辅助说明
+
+// 边框颜色
+$uni-border-1: #F3F4F6;
+$uni-border-2: #E5E7EB;
+$uni-border-3: #D1D5DB;
+$uni-border-4: #9CA3AF;
+
+// 常规色
+$uni-black: #000000;
+$uni-white: #ffffff;
+$uni-transparent: rgba($color: #000000, $alpha: 0);
+
+// 背景色
+$uni-bg-color: #F2F3F7;
+$uni-bg-white: #FFFFFF;
+
+// 水平间距
+$uni-spacing-sm: 8px;
+$uni-spacing-base: 16px;
+$uni-spacing-lg: 32px;
+
+// 阴影 — 轻薄有层次
+$uni-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+$uni-shadow-base: 0 2px 12px rgba(0, 0, 0, 0.06);
+$uni-shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.08);
+
+// 蒙版
+$uni-mask: rgba($color: #000000, $alpha: 0.4);
+
 @import '@/uni_modules/uni-scss/variables.scss';

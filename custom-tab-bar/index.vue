@@ -1,18 +1,22 @@
 <template>
 	<view class="tab-bar">
-		<view 
-			v-for="(item, index) in list" 
-			:key="index" 
-			class="tab-bar-item" 
+		<view
+			v-for="(item, index) in list"
+			:key="index"
+			class="tab-bar-item"
 			@click="switchTab(index)"
 		>
-			<text 
-				:style="{color: selected === index ? selectedColor : color}" 
+			<view class="tab-icon-wrap" :class="{ active: selected === index }">
+				<uni-icons
+					:type="selected === index ? item.selectedIcon : item.icon"
+					:size="22"
+					:color="selected === index ? selectedColor : color"
+				></uni-icons>
+			</view>
+			<text
 				class="tab-text"
-				:class="{'active': selected === index}"
-			>
-				{{ item.text }}
-			</text>
+				:class="{ active: selected === index }"
+			>{{ item.text }}</text>
 		</view>
 	</view>
 </template>
@@ -21,32 +25,32 @@
 export default {
 	data() {
 		return {
-			color: '#7A7E83',
-			selectedColor: '#007AFF',
+			color: '#9CA3AF',
+			selectedColor: '#4F6EF7',
 			selected: 0,
 			list: [
 				{
 					pagePath: '/pages/index/index',
-					iconPath: 'home',
-					selectedIconPath: 'home-filled',
+					icon: 'home',
+					selectedIcon: 'home-filled',
 					text: '首页'
 				},
 				{
 					pagePath: '/pages/message/message',
-					iconPath: 'chat',
-					selectedIconPath: 'chat-filled',
+					icon: 'chat',
+					selectedIcon: 'chat-filled',
 					text: '消息'
 				},
 				{
 					pagePath: '/pages/note/note',
-					iconPath: 'compose',
-					selectedIconPath: 'compose',
+					icon: 'compose',
+					selectedIcon: 'compose-filled',
 					text: '笔记'
 				},
 				{
 					pagePath: '/pages/mine/mine',
-					iconPath: 'contact',
-					selectedIconPath: 'contact-filled',
+					icon: 'contact',
+					selectedIcon: 'contact-filled',
 					text: '我'
 				}
 			]
@@ -67,7 +71,7 @@ export default {
 			const pages = getCurrentPages()
 			const currentPage = pages[pages.length - 1]
 			const currentPath = '/' + currentPage.route
-			
+
 			this.selected = this.list.findIndex(item => item.pagePath === currentPath)
 			if (this.selected === -1) {
 				this.selected = 0
@@ -86,29 +90,47 @@ export default {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	height: 50px;
-	background-color: #ffffff;
+	height: 52px;
+	background-color: #FFFFFF;
 	display: flex;
-	border-top: 1px solid #e5e5e5;
+	align-items: center;
 	padding-bottom: env(safe-area-inset-bottom);
 	z-index: 9999;
+	box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.04);
 }
 
 .tab-bar-item {
 	flex: 1;
 	display: flex;
+	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	gap: 2px;
+	padding: 4px 0;
+}
+
+.tab-icon-wrap {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 28px;
+	border-radius: 14px;
+	transition: all 0.25s ease;
+}
+
+.tab-icon-wrap.active {
+	background-color: rgba(79, 110, 247, 0.08);
 }
 
 .tab-text {
-	font-size: 18px;
-	font-weight: normal;
-	transition: all 0.3s;
+	font-size: 10px;
+	color: #9CA3AF;
+	transition: all 0.25s ease;
 }
 
 .tab-text.active {
-	font-weight: bold;
-	font-size: 19px;
+	color: #4F6EF7;
+	font-weight: 600;
 }
 </style>

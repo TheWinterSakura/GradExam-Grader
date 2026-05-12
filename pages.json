@@ -39,14 +39,14 @@
 		}
 	],
 	"globalStyle": {
-		"navigationBarTextStyle": "white",
+		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "考研作业批改",
-		"navigationBarBackgroundColor": "#007AFF",
-		"backgroundColor": "#f5f5f5"
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#F2F3F7"
 	},
 	"tabBar": {
-		"color": "#7A7E83",
-		"selectedColor": "#007AFF",
+		"color": "#9CA3AF",
+		"selectedColor": "#4F6EF7",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
 		"custom": true,

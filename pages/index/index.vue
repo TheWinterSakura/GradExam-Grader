@@ -1,80 +1,113 @@
 <template>
 	<view class="page">
-		<!-- 顶部选项卡 -->
+		<!-- 顶部胶囊切换 -->
 		<view class="top-tabs">
-			<view 
-				class="top-tab-item" 
-				:class="{'active': currentTab === 'course'}" 
-				@click="switchTopTab('course')"
-			>
-				<text class="top-tab-text">我的课程</text>
-			</view>
-			<view 
-				class="top-tab-item" 
-				:class="{'active': currentTab === 'assignment'}" 
-				@click="switchTopTab('assignment')"
-			>
-				<text class="top-tab-text">作业列表</text>
+			<view class="tab-track">
+				<view
+					class="tab-pill"
+					:class="{ active: currentTab === 'course' }"
+					@click="switchTopTab('course')"
+				>
+					<text class="tab-pill-text">我的课程</text>
+				</view>
+				<view
+					class="tab-pill"
+					:class="{ active: currentTab === 'assignment' }"
+					@click="switchTopTab('assignment')"
+				>
+					<text class="tab-pill-text">作业列表</text>
+				</view>
 			</view>
 		</view>
 
 		<!-- 我的课程内容 -->
-		<view v-if="currentTab === 'course'" class="course-content">
+		<view v-if="currentTab === 'course'" class="content-area">
 			<view class="course-list">
-				<view class="course-item" v-for="course in courseList" :key="course.id" @click="goToCourse(course)">
-					<view class="course-header">
-						<text class="course-name">{{ course.name }}</text>
-						<text class="student-count">{{ course.studentCount }}人</text>
+				<view class="course-card" v-for="course in courseList" :key="course.id" @click="goToCourse(course)">
+					<view class="course-card-top">
+						<view class="course-avatar">{{ course.name.charAt(0) }}</view>
+						<view class="course-main">
+							<text class="course-name">{{ course.name }}</text>
+							<text class="course-desc">{{ course.description }}</text>
+						</view>
 					</view>
-					<view class="course-info">
-						<text class="course-desc">{{ course.description }}</text>
-					</view>
-					<view class="course-footer">
-						<text class="course-time">{{ course.time }}</text>
+					<view class="course-card-bottom">
+						<view class="course-meta">
+							<uni-icons type="person" :size="14" color="#9CA3AF"></uni-icons>
+							<text class="meta-text">{{ course.studentCount }}人</text>
+						</view>
+						<view class="course-meta">
+							<uni-icons type="calendar" :size="14" color="#9CA3AF"></uni-icons>
+							<text class="meta-text">{{ course.time }}</text>
+						</view>
 					</view>
 				</view>
 			</view>
-			
-			<!-- 空状态 -->
+
 			<view class="empty" v-if="courseList.length === 0">
 				<text class="empty-text">暂无课程</text>
 			</view>
 		</view>
 
 		<!-- 作业列表内容 -->
-		<view v-if="currentTab === 'assignment'" class="assignment-content">
+		<view v-if="currentTab === 'assignment'" class="content-area">
 			<!-- 筛选栏 -->
 			<view class="filter-bar">
-				<view class="filter-item" :class="{'active': filterStatus === ''}" @click="filterStatus = ''">
-					全部
-				</view>
-				<view class="filter-item" :class="{'active': filterStatus === 'pending'}" @click="filterStatus = 'pending'">
-					待完成
-				</view>
-				<view class="filter-item" :class="{'active': filterStatus === 'completed'}" @click="filterStatus = 'completed'">
-					已完成
-				</view>
+				<view
+					class="filter-chip"
+					:class="{ active: filterStatus === '' }"
+					@click="filterStatus = ''"
+				>全部</view>
+				<view
+					class="filter-chip"
+					:class="{ active: filterStatus === 'pending' }"
+					@click="filterStatus = 'pending'"
+				>待完成</view>
+				<view
+					class="filter-chip"
+					:class="{ active: filterStatus === 'completed' }"
+					@click="filterStatus = 'completed'"
+				>已完成</view>
 			</view>
 
 			<!-- 作业列表 -->
 			<view class="assignment-list">
-				<view class="assignment-item" v-for="item in filteredList" :key="item.id" @click="goToDetail(item)">
-					<view class="item-header">
-						<text class="title">{{ item.title }}</text>
-						<uni-badge :text="item.statusText" :type="item.status === 'completed' ? 'success' : 'warning'"></uni-badge>
-					</view>
-					<view class="item-info">
-						<text class="info-text">学生：{{ item.studentName }}</text>
-						<text class="info-text">提交时间：{{ item.submitTime }}</text>
-					</view>
-					<view class="item-footer">
-						<text class="subject">{{ item.subject }}</text>
-						<text class="score" v-if="item.score">得分：{{ item.score }}</text>
+				<view
+					class="assignment-card"
+					:class="{ 'is-completed': item.status === 'completed' }"
+					v-for="item in filteredList"
+					:key="item.id"
+					@click="goToDetail(item)"
+				>
+					<view class="card-status-bar"></view>
+					<view class="card-body">
+						<view class="card-row">
+							<text class="card-title">{{ item.title }}</text>
+							<view class="status-tag" :class="item.status">
+								{{ item.statusText }}
+							</view>
+						</view>
+						<view class="card-row meta">
+							<view class="meta-item">
+								<uni-icons type="person" :size="13" color="#9CA3AF"></uni-icons>
+								<text>{{ item.studentName }}</text>
+							</view>
+							<view class="meta-item">
+								<uni-icons type="calendar" :size="13" color="#9CA3AF"></uni-icons>
+								<text>{{ item.submitTime }}</text>
+							</view>
+						</view>
+						<view class="card-row footer">
+							<text class="subject-tag">{{ item.subject }}</text>
+							<text class="score" v-if="item.score">
+								<text class="score-num">{{ item.score }}</text>
+								<text class="score-label">分</text>
+							</text>
+						</view>
 					</view>
 				</view>
 			</view>
 
-			<!-- 空状态 -->
 			<view class="empty" v-if="filteredList.length === 0">
 				<text class="empty-text">暂无作业</text>
 			</view>
@@ -189,193 +222,256 @@
 <style scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #f5f5f5;
-		padding-bottom: 50px;
+		background-color: #F2F3F7;
+		padding-bottom: 60px;
 	}
 
+	/* 顶部胶囊切换 */
 	.top-tabs {
-		display: flex;
-		background-color: #fff;
-		border-bottom: 1px solid #e5e5e5;
+		background-color: #FFFFFF;
+		padding: 12px 16px;
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 	}
 
-	.top-tab-item {
+	.tab-track {
+		display: flex;
+		background-color: #F2F3F7;
+		border-radius: 10px;
+		padding: 3px;
+	}
+
+	.tab-pill {
 		flex: 1;
 		text-align: center;
-		padding: 15px 0;
-		position: relative;
+		padding: 10px 0;
+		border-radius: 8px;
+		transition: all 0.25s ease;
 	}
 
-	.top-tab-text {
-		font-size: 16px;
-		color: #666;
+	.tab-pill.active {
+		background-color: #FFFFFF;
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 	}
 
-	.top-tab-item.active .top-tab-text {
-		color: #007AFF;
-		font-weight: bold;
+	.tab-pill-text {
+		font-size: 15px;
+		color: #9CA3AF;
+		font-weight: 500;
 	}
 
-	.top-tab-item.active::after {
-		content: '';
-		position: absolute;
-		bottom: 0;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 60px;
-		height: 3px;
-		background-color: #007AFF;
-		border-radius: 2px;
+	.tab-pill.active .tab-pill-text {
+		color: #4F6EF7;
+		font-weight: 600;
 	}
 
-	.course-content,
-	.assignment-content {
-		min-height: calc(100vh - 100px);
+	.content-area {
+		padding: 16px;
 	}
 
-	.course-list {
-		padding: 15px;
-	}
-
-	.course-item {
-		background-color: #fff;
-		border-radius: 12px;
+	/* 课程卡片 */
+	.course-card {
+		background-color: #FFFFFF;
+		border-radius: 14px;
 		padding: 20px;
-		margin-bottom: 15px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+		margin-bottom: 14px;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 	}
 
-	.course-header {
+	.course-card-top {
 		display: flex;
-		justify-content: space-between;
+		align-items: flex-start;
+		gap: 14px;
+		margin-bottom: 16px;
+	}
+
+	.course-avatar {
+		width: 44px;
+		height: 44px;
+		border-radius: 12px;
+		background: linear-gradient(135deg, #4F6EF7, #7B8FF7);
+		color: #fff;
+		font-size: 20px;
+		font-weight: 700;
+		display: flex;
 		align-items: center;
-		margin-bottom: 12px;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+
+	.course-main {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
 	}
 
 	.course-name {
-		font-size: 18px;
-		font-weight: bold;
-		color: #333;
-	}
-
-	.student-count {
-		font-size: 14px;
-		color: #007AFF;
-		background-color: #e6f2ff;
-		padding: 4px 12px;
-		border-radius: 12px;
-	}
-
-	.course-info {
-		margin-bottom: 12px;
+		font-size: 17px;
+		font-weight: 600;
+		color: #1A1A2E;
 	}
 
 	.course-desc {
-		font-size: 14px;
-		color: #666;
+		font-size: 13px;
+		color: #6B7280;
 		line-height: 1.5;
 	}
 
-	.course-footer {
-		padding-top: 12px;
-		border-top: 1px solid #f0f0f0;
+	.course-card-bottom {
+		display: flex;
+		justify-content: space-between;
+		padding-top: 14px;
+		border-top: 1px solid #F3F4F6;
 	}
 
-	.course-time {
+	.course-meta {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	.meta-text {
 		font-size: 13px;
-		color: #999;
+		color: #9CA3AF;
 	}
 
+	/* 筛选栏 */
 	.filter-bar {
 		display: flex;
-		background-color: #fff;
-		padding: 20rpx 0;
-		margin-bottom: 20rpx;
+		gap: 10px;
+		margin-bottom: 16px;
 	}
 
-	.filter-item {
-		flex: 1;
-		text-align: center;
-		padding: 10rpx 0;
-		font-size: 28rpx;
-		color: #666;
+	.filter-chip {
+		padding: 8px 20px;
+		font-size: 14px;
+		color: #6B7280;
+		background-color: #FFFFFF;
+		border-radius: 20px;
+		font-weight: 500;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+		transition: all 0.2s ease;
 	}
 
-	.filter-item.active {
-		color: #007AFF;
-		font-weight: bold;
-		border-bottom: 4rpx solid #007AFF;
+	.filter-chip.active {
+		color: #FFFFFF;
+		background-color: #4F6EF7;
+		box-shadow: 0 2px 8px rgba(79, 110, 247, 0.25);
 	}
 
-	.assignment-list {
-		padding: 0 30rpx;
-	}
-
-	.assignment-item {
-		background-color: #fff;
-		border-radius: 16rpx;
-		padding: 30rpx;
-		margin-bottom: 20rpx;
-		box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
-	}
-
-	.item-header {
+	/* 作业卡片 */
+	.assignment-card {
 		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 20rpx;
+		border-radius: 14px;
+		margin-bottom: 12px;
+		overflow: hidden;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+		background-color: #FFFFFF;
 	}
 
-	.title {
-		font-size: 32rpx;
-		font-weight: bold;
-		color: #333;
+	.card-status-bar {
+		width: 4px;
+		flex-shrink: 0;
+		background-color: #FF9500;
+	}
+
+	.assignment-card.is-completed .card-status-bar {
+		background-color: #34C759;
+	}
+
+	.card-body {
 		flex: 1;
-	}
-
-	.item-info {
+		padding: 16px 18px;
 		display: flex;
 		flex-direction: column;
-		gap: 10rpx;
-		margin-bottom: 20rpx;
+		gap: 10px;
 	}
 
-	.info-text {
-		font-size: 26rpx;
-		color: #666;
-	}
-
-	.item-footer {
+	.card-row {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding-top: 20rpx;
-		border-top: 1rpx solid #f0f0f0;
 	}
 
-	.subject {
-		font-size: 24rpx;
-		color: #999;
-		padding: 8rpx 20rpx;
-		background-color: #f5f5f5;
-		border-radius: 8rpx;
+	.card-title {
+		font-size: 16px;
+		font-weight: 600;
+		color: #1A1A2E;
+		flex: 1;
+	}
+
+	.status-tag {
+		font-size: 12px;
+		padding: 3px 10px;
+		border-radius: 10px;
+		font-weight: 500;
+	}
+
+	.status-tag.pending {
+		color: #FF9500;
+		background-color: #FFF3E0;
+	}
+
+	.status-tag.completed {
+		color: #34C759;
+		background-color: #E8F8ED;
+	}
+
+	.card-row.meta {
+		gap: 20px;
+		justify-content: flex-start;
+	}
+
+	.meta-item {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		font-size: 13px;
+		color: #9CA3AF;
+	}
+
+	.card-row.footer {
+		padding-top: 10px;
+		border-top: 1px solid #F3F4F6;
+	}
+
+	.subject-tag {
+		font-size: 12px;
+		color: #6B7280;
+		background-color: #F2F3F7;
+		padding: 3px 12px;
+		border-radius: 6px;
 	}
 
 	.score {
-		font-size: 28rpx;
-		color: #ff6b6b;
-		font-weight: bold;
+		display: flex;
+		align-items: baseline;
+		gap: 2px;
 	}
 
+	.score-num {
+		font-size: 20px;
+		font-weight: 700;
+		color: #34C759;
+	}
+
+	.score-label {
+		font-size: 12px;
+		color: #9CA3AF;
+	}
+
+	/* 空状态 */
 	.empty {
 		display: flex;
-		justify-content: center;
+		flex-direction: column;
 		align-items: center;
-		padding: 200rpx 0;
+		justify-content: center;
+		padding: 120px 0;
+		gap: 12px;
 	}
 
 	.empty-text {
-		font-size: 28rpx;
-		color: #999;
+		font-size: 15px;
+		color: #9CA3AF;
 	}
 </style>
