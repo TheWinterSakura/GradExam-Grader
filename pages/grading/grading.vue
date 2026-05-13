@@ -1,61 +1,50 @@
 <template>
 	<view class="page">
-		<!-- 学生信息 -->
+		<!-- 作业信息头 -->
 		<view class="info-card">
 			<view class="info-bar"></view>
 			<view class="info-body">
-				<text class="student-name">{{ assignment.studentName }}</text>
 				<text class="assignment-title">{{ assignment.title }}</text>
+				<text class="assignment-meta">{{ assignment.subject }} · {{ assignment.deadline }}</text>
 			</view>
 		</view>
 
-		<!-- 作业内容预览 -->
+		<!-- 作业要求 -->
 		<view class="content-card">
 			<view class="section-header">
 				<view class="section-dot"></view>
-				<text class="section-title">作业内容</text>
+				<text class="section-title">作业要求</text>
 			</view>
 			<view class="content-preview">
-				{{ assignment.content }}
+				{{ assignment.requirement }}
 			</view>
 		</view>
 
-		<!-- 评分 -->
+		<!-- 我的作答 -->
 		<view class="content-card">
 			<view class="section-header">
 				<view class="section-dot"></view>
-				<text class="section-title">评分</text>
+				<text class="section-title">我的作答</text>
 			</view>
-			<view class="score-input-wrapper">
-				<input class="score-input" type="digit" v-model="score" placeholder="请输入分数" />
-				<text class="score-unit">分</text>
-			</view>
+			<textarea class="answer-input" v-model="answer" placeholder="请输入你的作答内容..." maxlength="2000" />
+			<view class="char-count">{{ answer.length }}/2000</view>
 		</view>
 
-		<!-- 批改意见 -->
+		<!-- 附件上传 -->
 		<view class="content-card">
 			<view class="section-header">
 				<view class="section-dot"></view>
-				<text class="section-title">批改意见</text>
+				<text class="section-title">附件（可选）</text>
 			</view>
-			<textarea class="comment-input" v-model="comment" placeholder="请输入批改意见..." maxlength="500" />
-			<view class="char-count">{{ comment.length }}/500</view>
-		</view>
-
-		<!-- 快捷评语 -->
-		<view class="content-card">
-			<view class="section-header">
-				<view class="section-dot"></view>
-				<text class="section-title">快捷评语</text>
+			<view class="upload-area" @click="uploadFile">
+				<uni-icons type="plusempty" :size="28" color="#D1D5DB"></uni-icons>
+				<text class="upload-text">点击上传文件</text>
 			</view>
-			<view class="quick-comments">
-				<view
-					class="comment-tag"
-					v-for="(tag, index) in quickComments"
-					:key="index"
-					@click="addQuickComment(tag)"
-				>
-					{{ tag }}
+			<view class="file-list" v-if="files.length > 0">
+				<view class="file-item" v-for="(file, index) in files" :key="index">
+					<uni-icons type="paperclip" :size="16" color="#4F6EF7"></uni-icons>
+					<text class="file-name">{{ file.name }}</text>
+					<text class="file-del" @click="removeFile(index)">删除</text>
 				</view>
 			</view>
 		</view>
@@ -66,7 +55,7 @@
 				<text class="btn-label">取消</text>
 			</view>
 			<view class="action-btn primary" @click="submit">
-				<text class="btn-label white">提交批改</text>
+				<text class="btn-label white">提交作业</text>
 			</view>
 		</view>
 	</view>
@@ -78,22 +67,13 @@
 			return {
 				assignmentId: '',
 				assignment: {
-					studentName: '张三',
 					title: '高等数学第一章习题',
-					content: '1. 求函数 f(x) = x² + 2x + 1 的导数\n2. 计算极限 lim(x→0) (sin x)/x\n3. 求不定积分 ∫x²dx'
+					subject: '数学',
+					deadline: '2024-01-20 23:59',
+					requirement: '1. 求函数 f(x) = x² + 2x + 1 的导数\n2. 计算极限 lim(x→0) (sin x)/x\n3. 求不定积分 ∫x²dx\n请写出完整的解题过程，并拍照上传。'
 				},
-				score: '',
-				comment: '',
-				quickComments: [
-					'解题思路清晰',
-					'计算准确',
-					'需要加强基础',
-					'步骤完整',
-					'有待提高',
-					'优秀',
-					'格式规范',
-					'注意细节'
-				]
+				answer: '',
+				files: []
 			}
 		},
 		onLoad(options) {
@@ -102,27 +82,22 @@
 			}
 		},
 		methods: {
-			addQuickComment(tag) {
-				if (this.comment) {
-					this.comment += '；' + tag
-				} else {
-					this.comment = tag
-				}
+			uploadFile() {
+				uni.showToast({
+					title: '文件上传功能开发中',
+					icon: 'none'
+				})
+			},
+			removeFile(index) {
+				this.files.splice(index, 1)
 			},
 			cancel() {
 				uni.navigateBack()
 			},
 			submit() {
-				if (!this.score) {
+				if (!this.answer.trim()) {
 					uni.showToast({
-						title: '请输入分数',
-						icon: 'none'
-					})
-					return
-				}
-				if (!this.comment) {
-					uni.showToast({
-						title: '请输入批改意见',
+						title: '请输入作答内容',
 						icon: 'none'
 					})
 					return
@@ -130,7 +105,7 @@
 
 				uni.showModal({
 					title: '提示',
-					content: '确认提交批改结果？',
+					content: '确认提交作业？',
 					success: (res) => {
 						if (res.confirm) {
 							uni.showToast({
@@ -157,7 +132,7 @@
 		padding: 16px 16px 40px;
 	}
 
-	/* 学生信息 */
+	/* 作业信息 */
 	.info-card {
 		display: flex;
 		background-color: #FFFFFF;
@@ -182,15 +157,15 @@
 		gap: 6px;
 	}
 
-	.student-name {
-		font-size: 20px;
+	.assignment-title {
+		font-size: 18px;
 		font-weight: 700;
 		color: #1A1A2E;
 	}
 
-	.assignment-title {
-		font-size: 14px;
-		color: #6B7280;
+	.assignment-meta {
+		font-size: 13px;
+		color: #9CA3AF;
 	}
 
 	/* 内容卡片 */
@@ -227,37 +202,12 @@
 		color: #6B7280;
 		line-height: 1.9;
 		white-space: pre-wrap;
-		max-height: 160px;
-		overflow-y: auto;
 	}
 
-	/* 评分输入 */
-	.score-input-wrapper {
-		display: flex;
-		align-items: center;
-		gap: 12px;
-	}
-
-	.score-input {
-		flex: 1;
-		height: 48px;
-		padding: 0 16px;
-		font-size: 16px;
-		background-color: #F8F9FC;
-		border: 1px solid #E5E7EB;
-		border-radius: 10px;
-	}
-
-	.score-unit {
-		font-size: 15px;
-		color: #6B7280;
-		font-weight: 500;
-	}
-
-	/* 评语输入 */
-	.comment-input {
+	/* 作答输入 */
+	.answer-input {
 		width: 100%;
-		min-height: 120px;
+		min-height: 160px;
 		padding: 14px;
 		font-size: 15px;
 		background-color: #F8F9FC;
@@ -265,6 +215,7 @@
 		border-radius: 10px;
 		box-sizing: border-box;
 		color: #1A1A2E;
+		line-height: 1.7;
 	}
 
 	.char-count {
@@ -274,25 +225,48 @@
 		margin-top: 8px;
 	}
 
-	/* 快捷评语 */
-	.quick-comments {
+	/* 上传 */
+	.upload-area {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 10px;
+		flex-direction: column;
+		align-items: center;
+		gap: 8px;
+		padding: 24px;
+		border: 1px dashed #E5E7EB;
+		border-radius: 10px;
+		background-color: #F8F9FC;
 	}
 
-	.comment-tag {
-		padding: 8px 16px;
-		background-color: #F2F3F7;
+	.upload-text {
+		font-size: 14px;
+		color: #9CA3AF;
+	}
+
+	.file-list {
+		margin-top: 12px;
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.file-item {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 10px 14px;
+		background-color: #F8F9FC;
 		border-radius: 8px;
-		font-size: 13px;
-		color: #6B7280;
-		transition: all 0.2s ease;
 	}
 
-	.comment-tag:active {
-		background-color: #4F6EF7;
-		color: #FFFFFF;
+	.file-name {
+		flex: 1;
+		font-size: 14px;
+		color: #1A1A2E;
+	}
+
+	.file-del {
+		font-size: 13px;
+		color: #FF3B30;
 	}
 
 	/* 提交按钮 */

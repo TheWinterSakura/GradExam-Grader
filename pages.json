@@ -34,7 +34,7 @@
 		{
 			"path": "pages/grading/grading",
 			"style": {
-				"navigationBarTitleText": "批改作业"
+				"navigationBarTitleText": "修改作业"
 			}
 		}
 	],
@@ -47,9 +47,9 @@
 	"tabBar": {
 		"color": "#9CA3AF",
 		"selectedColor": "#4F6EF7",
-		"borderStyle": "black",
-		"backgroundColor": "#ffffff",
-		"custom": true,
+		"borderStyle": "white",
+		"backgroundColor": "#FFFFFF",
+		"custom": false,
 		"list": [
 			{
 				"pagePath": "pages/index/index",

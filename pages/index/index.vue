@@ -193,13 +193,6 @@
 				})
 			}, 1000)
 		},
-		onShow() {
-			if (typeof this.$mp.page.getTabBar === 'function' && this.$mp.page.getTabBar()) {
-				this.$mp.page.getTabBar().setData({
-					selected: 0
-				})
-			}
-		},
 		methods: {
 			switchTopTab(tab) {
 				this.currentTab = tab

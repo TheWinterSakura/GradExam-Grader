@@ -1,6 +1,6 @@
 <template>
 	<view class="page">
-		<!-- 作业信息卡片 -->
+		<!-- 作业信息 -->
 		<view class="detail-card">
 			<view class="card-header">
 				<text class="card-title">{{ assignment.title }}</text>
@@ -11,20 +11,20 @@
 
 			<view class="info-grid">
 				<view class="info-item">
-					<text class="info-label">学生姓名</text>
-					<text class="info-value">{{ assignment.studentName }}</text>
-				</view>
-				<view class="info-item">
 					<text class="info-label">科目</text>
 					<text class="info-value">{{ assignment.subject }}</text>
 				</view>
 				<view class="info-item">
-					<text class="info-label">提交时间</text>
-					<text class="info-value">{{ assignment.submitTime }}</text>
+					<text class="info-label">截止时间</text>
+					<text class="info-value">{{ assignment.deadline }}</text>
 				</view>
-				<view class="info-item" v-if="assignment.score">
-					<text class="info-label">得分</text>
-					<text class="info-value score">{{ assignment.score }} 分</text>
+				<view class="info-item">
+					<text class="info-label">发布老师</text>
+					<text class="info-value">{{ assignment.teacher }}</text>
+				</view>
+				<view class="info-item" v-if="assignment.score != null">
+					<text class="info-label">成绩</text>
+					<text class="info-value" :class="assignment.score >= 60 ? 'score-pass' : 'score-fail'">{{ assignment.score }} 分</text>
 				</view>
 			</view>
 		</view>
@@ -40,28 +40,22 @@
 			</view>
 		</view>
 
-		<!-- 附件 -->
-		<view class="content-card" v-if="assignment.attachments && assignment.attachments.length > 0">
+		<!-- 我的作答 -->
+		<view class="content-card" v-if="assignment.myAnswer">
 			<view class="section-header">
-				<view class="section-dot"></view>
-				<text class="section-title">附件</text>
+				<view class="section-dot done"></view>
+				<text class="section-title">我的作答</text>
 			</view>
-			<view class="attachment-list">
-				<view class="attachment-item" v-for="(file, index) in assignment.attachments" :key="index" @click="previewFile(file)">
-					<view class="file-icon">
-						<uni-icons type="paperclip" :size="18" color="#4F6EF7"></uni-icons>
-					</view>
-					<text class="file-name">{{ file.name }}</text>
-					<uni-icons type="arrowright" :size="16" color="#D1D5DB"></uni-icons>
-				</view>
+			<view class="answer-box">
+				{{ assignment.myAnswer }}
 			</view>
 		</view>
 
-		<!-- 批改意见 -->
+		<!-- 老师评语 -->
 		<view class="content-card" v-if="assignment.comment">
 			<view class="section-header">
-				<view class="section-dot done"></view>
-				<text class="section-title">批改意见</text>
+				<view class="section-dot comment"></view>
+				<text class="section-title">老师评语</text>
 			</view>
 			<view class="comment-box">
 				{{ assignment.comment }}
@@ -69,10 +63,13 @@
 		</view>
 
 		<!-- 操作按钮 -->
-		<view class="action-spacer" v-if="assignment.status === 'pending'"></view>
-		<view class="action-bar" v-if="assignment.status === 'pending'">
-			<view class="action-btn primary" @click="goToGrading">
-				<text class="btn-text">开始批改</text>
+		<view class="action-spacer"></view>
+		<view class="action-bar">
+			<view v-if="assignment.status === 'pending'" class="action-btn primary" @click="goToSubmit">
+				<text class="btn-text">提交作业</text>
+			</view>
+			<view v-else class="action-btn outline" @click="goToSubmit">
+				<text class="btn-text">修改作业</text>
 			</view>
 		</view>
 	</view>
@@ -86,16 +83,15 @@
 				assignment: {
 					id: 1,
 					title: '高等数学第一章习题',
-					studentName: '张三',
 					subject: '数学',
-					submitTime: '2024-01-15 10:30',
+					deadline: '2024-01-20 23:59',
+					teacher: '王老师',
 					status: 'pending',
-					statusText: '待批改',
+					statusText: '待提交',
 					content: '1. 求函数 f(x) = x² + 2x + 1 的导数\n2. 计算极限 lim(x→0) (sin x)/x\n3. 求不定积分 ∫x²dx',
-					attachments: [
-						{ name: '作业答案.pdf', url: '' },
-						{ name: '解题过程.jpg', url: '' }
-					]
+					myAnswer: '',
+					comment: '',
+					score: null
 				}
 			}
 		},
@@ -105,13 +101,7 @@
 			}
 		},
 		methods: {
-			previewFile(file) {
-				uni.showToast({
-					title: '预览文件：' + file.name,
-					icon: 'none'
-				})
-			},
-			goToGrading() {
+			goToSubmit() {
 				uni.navigateTo({
 					url: `/pages/grading/grading?id=${this.assignmentId}`
 				})
@@ -164,7 +154,12 @@
 		background-color: #FFF3E0;
 	}
 
-	.status-tag.completed {
+	.status-tag.submitted {
+		color: #4F6EF7;
+		background-color: #EEF1FE;
+	}
+
+	.status-tag.graded {
 		color: #34C759;
 		background-color: #E8F8ED;
 	}
@@ -193,8 +188,13 @@
 		font-weight: 500;
 	}
 
-	.info-value.score {
-		color: #FF9500;
+	.info-value.score-pass {
+		color: #34C759;
+		font-weight: 700;
+	}
+
+	.info-value.score-fail {
+		color: #FF3B30;
 		font-weight: 700;
 	}
 
@@ -222,6 +222,10 @@
 	}
 
 	.section-dot.done {
+		background-color: #FF9500;
+	}
+
+	.section-dot.comment {
 		background-color: #34C759;
 	}
 
@@ -238,39 +242,17 @@
 		white-space: pre-wrap;
 	}
 
-	/* 附件 */
-	.attachment-list {
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-	}
-
-	.attachment-item {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding: 12px 14px;
-		background-color: #F8F9FC;
+	.answer-box {
+		font-size: 15px;
+		color: #6B7280;
+		line-height: 1.9;
+		white-space: pre-wrap;
+		padding: 14px;
+		background-color: #FFF8EC;
 		border-radius: 10px;
+		border-left: 3px solid #FF9500;
 	}
 
-	.file-icon {
-		width: 36px;
-		height: 36px;
-		border-radius: 8px;
-		background-color: #EEF1FE;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.file-name {
-		flex: 1;
-		font-size: 14px;
-		color: #1A1A2E;
-	}
-
-	/* 批改意见 */
 	.comment-box {
 		font-size: 15px;
 		color: #6B7280;
@@ -309,6 +291,16 @@
 	.action-btn.primary {
 		background-color: #4F6EF7;
 		box-shadow: 0 4px 14px rgba(79, 110, 247, 0.3);
+	}
+
+	.action-btn.outline {
+		background-color: #FFFFFF;
+		border: 1px solid #4F6EF7;
+	}
+
+	.action-btn.outline .btn-text {
+		color: #4F6EF7;
+		font-weight: 600;
 	}
 
 	.btn-text {
