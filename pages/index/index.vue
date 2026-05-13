@@ -193,7 +193,6 @@
 				})
 			}, 1000)
 		},
-		onShow() {
 		methods: {
 			switchTopTab(tab) {
 				this.currentTab = tab
