@@ -22,66 +22,70 @@
 </template>
 
 <script>
-export default {
-	data() {
-		return {
-			color: '#9CA3AF',
-			selectedColor: '#4F6EF7',
-			selected: 0,
-			list: [
-				{
-					pagePath: '/pages/index/index',
-					icon: 'home',
-					selectedIcon: 'home-filled',
-					text: '首页'
-				},
-				{
-					pagePath: '/pages/message/message',
-					icon: 'chat',
-					selectedIcon: 'chat-filled',
-					text: '消息'
-				},
-				{
-					pagePath: '/pages/note/note',
-					icon: 'compose',
-					selectedIcon: 'compose-filled',
-					text: '笔记'
-				},
-				{
-					pagePath: '/pages/mine/mine',
-					icon: 'contact',
-					selectedIcon: 'contact-filled',
-					text: '我'
-				}
-			]
-		}
-	},
-	created() {
-		this.updateSelected()
-	},
-	methods: {
-		switchTab(index) {
-			const item = this.list[index]
-			uni.switchTab({
-				url: item.pagePath
-			})
-			this.selected = index
-		},
-		updateSelected() {
-			const pages = getCurrentPages()
-			const currentPage = pages[pages.length - 1]
-			const currentPath = '/' + currentPage.route
+	// 显式引入 uni-icons 以确保在微信小程序中可用
+	import uniIcons from '@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue'
 
-			this.selected = this.list.findIndex(item => item.pagePath === currentPath)
-			if (this.selected === -1) {
-				this.selected = 0
+	export default {
+		components: { uniIcons },
+		data() {
+			return {
+				color: '#9CA3AF',
+				selectedColor: '#4F6EF7',
+				selected: 0,
+				list: [
+					{
+						pagePath: '/pages/index/index',
+						icon: 'home',
+						selectedIcon: 'home-filled',
+						text: '首页'
+					},
+					{
+						pagePath: '/pages/message/message',
+						icon: 'chat',
+						selectedIcon: 'chat-filled',
+						text: '消息'
+					},
+					{
+						pagePath: '/pages/note/note',
+						icon: 'compose',
+						selectedIcon: 'compose-filled',
+						text: '笔记'
+					},
+					{
+						pagePath: '/pages/mine/mine',
+						icon: 'contact',
+						selectedIcon: 'contact-filled',
+						text: '我'
+					}
+				]
 			}
+		},
+		created() {
+			this.updateSelected()
+		},
+		methods: {
+			switchTab(index) {
+				const item = this.list[index]
+				uni.switchTab({
+					url: item.pagePath
+				})
+				this.selected = index
+			},
+			updateSelected() {
+				const pages = getCurrentPages()
+				if (pages.length === 0) return
+				const currentPage = pages[pages.length - 1]
+				const currentPath = '/' + currentPage.route
+				const idx = this.list.findIndex(item => item.pagePath === currentPath)
+				if (idx !== -1) {
+					this.selected = idx
+				}
+			}
+		},
+		onShow() {
+			this.updateSelected()
 		}
-	},
-	onShow() {
-		this.updateSelected()
 	}
-}
 </script>
 
 <style lang="scss" scoped>

@@ -34,7 +34,7 @@
 		{
 			"path": "pages/grading/grading",
 			"style": {
-				"navigationBarTitleText": "批改作业"
+				"navigationBarTitleText": "修改作业"
 			}
 		}
 	],
