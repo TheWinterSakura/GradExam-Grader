@@ -67,11 +67,13 @@
 			return {
 				assignmentId: '',
 				assignment: {
-					title: '高等数学第一章习题',
-					subject: '数学',
-					deadline: '2024-01-20 23:59',
-					requirement: '1. 求函数 f(x) = x² + 2x + 1 的导数\n2. 计算极限 lim(x→0) (sin x)/x\n3. 求不定积分 ∫x²dx\n请写出完整的解题过程，并拍照上传。'
+					title: '加载中...',
+					subject: '',
+					deadline: '',
+					requirement: ''
 				},
+				questions: [], // 题目列表
+				answers: {}, // 答案对象 {questionId: answer}
 				answer: '',
 				files: []
 			}
@@ -79,22 +81,55 @@
 		onLoad(options) {
 			if (options.id) {
 				this.assignmentId = options.id
+				this.loadAssignmentDetail()
 			}
 		},
 		methods: {
+			// 加载作业详情
+			loadAssignmentDetail() {
+				const that = this
+				const { getAssignmentDetail } = require('@/api/student.js')
+				
+				getAssignmentDetail(this.assignmentId).then(result => {
+					if (result.code === 200) {
+						that.questions = result.data
+						
+						// 将题目转换为作业要求文本
+						let requirement = ''
+						that.questions.forEach((q, index) => {
+							requirement += `${index + 1}. ${q.content}\n`
+							if (q.options) {
+								Object.keys(q.options).forEach(key => {
+									requirement += `${key}. ${q.options[key]}\n`
+								})
+							}
+							requirement += '\n'
+						})
+						
+						that.assignment.requirement = requirement
+					}
+				}).catch(error => {
+					console.error('加载作业详情失败:', error)
+				})
+			},
+			
 			uploadFile() {
 				uni.showToast({
 					title: '文件上传功能开发中',
 					icon: 'none'
 				})
 			},
+			
 			removeFile(index) {
 				this.files.splice(index, 1)
 			},
+			
 			cancel() {
 				uni.navigateBack()
 			},
+			
 			submit() {
+				const that = this
 				if (!this.answer.trim()) {
 					uni.showToast({
 						title: '请输入作答内容',
@@ -106,17 +141,43 @@
 				uni.showModal({
 					title: '提示',
 					content: '确认提交作业？',
-					success: (res) => {
+					success: function(res) {
 						if (res.confirm) {
-							uni.showToast({
-								title: '提交成功',
-								icon: 'success'
-							})
-							setTimeout(() => {
-								uni.navigateBack({
-									delta: 2
+							const { submitAssignment } = require('@/api/student.js')
+							const { getUserId } = require('@/utils/auth.js')
+							
+							// 构建提交数据
+							const details = that.questions.map((q, index) => ({
+								questionId: q.questionId,
+								answer: '', // 如果有选择题答案可以填入
+								answerContent: that.answer // 统一使用文本答案
+							}))
+							
+							const submitData = {
+								assignmentId: parseInt(that.assignmentId),
+								studentId: getUserId(),
+								details: details
+							}
+							
+							submitAssignment(submitData).then(result => {
+								if (result.code === 200) {
+									uni.showToast({
+										title: '提交成功',
+										icon: 'success'
+									})
+									setTimeout(() => {
+										uni.navigateBack({
+											delta: 2
+										})
+									}, 1500)
+								}
+							}).catch(error => {
+								console.error('提交作业失败:', error)
+								uni.showToast({
+									title: '提交失败',
+									icon: 'none'
 								})
-							}, 1500)
+							})
 						}
 					}
 				})
