@@ -82,13 +82,13 @@
 				assignmentId: '',
 				assignment: {
 					id: 1,
-					title: '高等数学第一章习题',
-					subject: '数学',
-					deadline: '2024-01-20 23:59',
-					teacher: '王老师',
+					title: '加载中...',
+					subject: '',
+					deadline: '',
+					teacher: '',
 					status: 'pending',
 					statusText: '待提交',
-					content: '1. 求函数 f(x) = x² + 2x + 1 的导数\n2. 计算极限 lim(x→0) (sin x)/x\n3. 求不定积分 ∫x²dx',
+					content: '',
 					myAnswer: '',
 					comment: '',
 					score: null
@@ -98,9 +98,41 @@
 		onLoad(options) {
 			if (options.id) {
 				this.assignmentId = options.id
+				this.loadAssignmentDetail()
 			}
 		},
 		methods: {
+			// 加载作业详情
+			loadAssignmentDetail() {
+				const that = this
+				const { getAssignmentDetail } = require('@/api/student.js')
+				
+				getAssignmentDetail(this.assignmentId).then(result => {
+					if (result.code === 200 && result.data.length > 0) {
+						// 将题目列表转换为作业内容
+						const questions = result.data
+						let content = ''
+						questions.forEach((q, index) => {
+							content += `${index + 1}. ${q.content}\n`
+							if (q.options) {
+								Object.keys(q.options).forEach(key => {
+									content += `${key}. ${q.options[key]}\n`
+								})
+							}
+							content += '\n'
+						})
+						
+						that.assignment.content = content
+					}
+				}).catch(error => {
+					console.error('加载作业详情失败:', error)
+					uni.showToast({
+						title: '加载失败',
+						icon: 'none'
+					})
+				})
+			},
+			
 			goToSubmit() {
 				uni.navigateTo({
 					url: `/pages/grading/grading?id=${this.assignmentId}`

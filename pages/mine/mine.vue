@@ -63,37 +63,71 @@
 		data() {
 			return {
 				userInfo: {
-					name: '张三',
-					studentId: '2024001',
-					college: '软件学院',
-					class: '2023级8班'
+					name: '加载中...',
+					studentId: '',
+					college: '',
+					class: ''
 				},
 				stats: {
-					total: 156,
-					completed: 128,
-					pending: 28
+					total: 0,
+					completed: 0,
+					pending: 0
 				}
 			}
 		},
 		onShow() {
+			this.loadUserInfo()
 		},
 		methods: {
+			// 加载用户信息
+			loadUserInfo() {
+				const that = this
+				const { getUserInfo } = require('@/api/student.js')
+				const { getUserId } = require('@/utils/auth.js')
+				
+				const userId = getUserId()
+				getUserInfo(userId).then(result => {
+					if (result.code === 200) {
+						that.userInfo = {
+							name: result.data.name || result.data.username,
+							studentId: result.data.id,
+							college: '考研学院', // 后端没有返回，使用默认值
+							class: '学生'
+						}
+					}
+				}).catch(error => {
+					console.error('加载用户信息失败:', error)
+				})
+			},
+			
 			goToPage(type) {
 				uni.showToast({
 					title: '功能开发中',
 					icon: 'none'
 				})
 			},
+			
 			logout() {
+				const { clearAuth, goToLogin } = require('@/utils/auth.js')
+				
 				uni.showModal({
 					title: '提示',
 					content: '确认退出登录？',
 					success: (res) => {
 						if (res.confirm) {
+							// 清除登录信息
+							clearAuth()
+							
 							uni.showToast({
 								title: '已退出',
-								icon: 'success'
+								icon: 'success',
+								duration: 1500
 							})
+							
+							// 跳转到登录页
+							setTimeout(() => {
+								goToLogin()
+							}, 1500)
 						}
 					}
 				})

@@ -121,6 +121,7 @@
 			return {
 				currentTab: 'assignment',
 				filterStatus: '',
+				classId: 1, // 默认班级ID
 				courseList: [
 					{
 						id: 1,
@@ -144,36 +145,7 @@
 						time: '周五 19:00-21:00'
 					}
 				],
-				assignmentList: [
-					{
-						id: 1,
-						title: '高等数学第一章习题',
-						studentName: '张三',
-						submitTime: '2024-01-15 10:30',
-						subject: '数学',
-						status: 'pending',
-						statusText: '待完成'
-					},
-					{
-						id: 2,
-						title: '英语阅读理解练习',
-						studentName: '李四',
-						submitTime: '2024-01-14 15:20',
-						subject: '英语',
-						status: 'completed',
-						statusText: '已完成',
-						score: '85'
-					},
-					{
-						id: 3,
-						title: '政治马克思主义原理',
-						studentName: '王五',
-						submitTime: '2024-01-13 09:15',
-						subject: '政治',
-						status: 'pending',
-						statusText: '待完成'
-					}
-				]
+				assignmentList: []
 			}
 		},
 		computed: {
@@ -184,16 +156,47 @@
 				return this.assignmentList.filter(item => item.status === this.filterStatus)
 			}
 		},
+		onLoad() {
+			this.loadAssignmentList()
+		},
 		onPullDownRefresh() {
-			setTimeout(() => {
-				uni.stopPullDownRefresh()
-				uni.showToast({
-					title: '刷新成功',
-					icon: 'success'
-				})
-			}, 1000)
+			this.loadAssignmentList()
 		},
 		methods: {
+			// 加载作业列表
+			loadAssignmentList() {
+				const that = this
+				const { getAssignmentList } = require('@/api/student.js')
+				
+				getAssignmentList(this.classId).then(result => {
+					if (result.code === 200) {
+						// 转换后端数据为页面格式
+						that.assignmentList = result.data.map(item => ({
+							id: item.id,
+							title: item.title,
+							studentName: '我',
+							submitTime: item.deadline,
+							subject: that.getSubjectFromTitle(item.title),
+							status: item.status === 0 ? 'pending' : 'completed',
+							statusText: item.status === 0 ? '待完成' : '已完成',
+							score: item.status === 1 ? item.totalScore : null
+						}))
+					}
+					uni.stopPullDownRefresh()
+				}).catch(error => {
+					console.error('加载作业列表失败:', error)
+					uni.stopPullDownRefresh()
+				})
+			},
+			
+			// 从标题提取科目
+			getSubjectFromTitle(title) {
+				if (title.includes('数学')) return '数学'
+				if (title.includes('英语')) return '英语'
+				if (title.includes('政治')) return '政治'
+				return '其他'
+			},
+			
 			switchTopTab(tab) {
 				this.currentTab = tab
 			},
@@ -215,59 +218,58 @@
 <style scoped>
 	.page {
 		min-height: 100vh;
-		background-color: #F2F3F7;
+		background-color: #F8F9FA;
 		padding-bottom: 60px;
 	}
 
 	/* 顶部胶囊切换 */
 	.top-tabs {
 		background-color: #FFFFFF;
-		padding: 12px 16px;
-		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+		padding: 16px 20px;
 	}
 
 	.tab-track {
 		display: flex;
-		background-color: #F2F3F7;
-		border-radius: 10px;
-		padding: 3px;
+		background-color: #F5F6F7;
+		border-radius: 12px;
+		padding: 4px;
 	}
 
 	.tab-pill {
 		flex: 1;
 		text-align: center;
 		padding: 10px 0;
-		border-radius: 8px;
-		transition: all 0.25s ease;
+		border-radius: 10px;
+		transition: all 0.3s ease;
 	}
 
 	.tab-pill.active {
 		background-color: #FFFFFF;
-		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 	}
 
 	.tab-pill-text {
 		font-size: 15px;
-		color: #9CA3AF;
+		color: #8E8E93;
 		font-weight: 500;
 	}
 
 	.tab-pill.active .tab-pill-text {
-		color: #4F6EF7;
+		color: #333333;
 		font-weight: 600;
 	}
 
 	.content-area {
-		padding: 16px;
+		padding: 16px 20px;
 	}
 
 	/* 课程卡片 */
 	.course-card {
 		background-color: #FFFFFF;
-		border-radius: 14px;
+		border-radius: 16px;
 		padding: 20px;
-		margin-bottom: 14px;
-		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+		margin-bottom: 12px;
+		border: 1px solid #F0F0F0;
 	}
 
 	.course-card-top {
@@ -278,13 +280,13 @@
 	}
 
 	.course-avatar {
-		width: 44px;
-		height: 44px;
+		width: 48px;
+		height: 48px;
 		border-radius: 12px;
-		background: linear-gradient(135deg, #4F6EF7, #7B8FF7);
-		color: #fff;
+		background-color: #F5F6F7;
+		color: #666666;
 		font-size: 20px;
-		font-weight: 700;
+		font-weight: 600;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -299,14 +301,14 @@
 	}
 
 	.course-name {
-		font-size: 17px;
+		font-size: 16px;
 		font-weight: 600;
-		color: #1A1A2E;
+		color: #333333;
 	}
 
 	.course-desc {
 		font-size: 13px;
-		color: #6B7280;
+		color: #999999;
 		line-height: 1.5;
 	}
 
@@ -314,7 +316,7 @@
 		display: flex;
 		justify-content: space-between;
 		padding-top: 14px;
-		border-top: 1px solid #F3F4F6;
+		border-top: 1px solid #F5F6F7;
 	}
 
 	.course-meta {
@@ -325,7 +327,7 @@
 
 	.meta-text {
 		font-size: 13px;
-		color: #9CA3AF;
+		color: #999999;
 	}
 
 	/* 筛选栏 */
@@ -336,48 +338,40 @@
 	}
 
 	.filter-chip {
-		padding: 8px 20px;
+		padding: 8px 18px;
 		font-size: 14px;
-		color: #6B7280;
-		background-color: #FFFFFF;
+		color: #666666;
+		background-color: #F5F6F7;
 		border-radius: 20px;
 		font-weight: 500;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-		transition: all 0.2s ease;
+		transition: all 0.3s ease;
 	}
 
 	.filter-chip.active {
-		color: #FFFFFF;
-		background-color: #4F6EF7;
-		box-shadow: 0 2px 8px rgba(79, 110, 247, 0.25);
+		color: #333333;
+		background-color: #FFFFFF;
+		border: 1px solid #E5E5E5;
 	}
 
 	/* 作业卡片 */
 	.assignment-card {
-		display: flex;
-		border-radius: 14px;
+		background-color: #FFFFFF;
+		border-radius: 16px;
 		margin-bottom: 12px;
 		overflow: hidden;
-		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-		background-color: #FFFFFF;
+		border: 1px solid #F0F0F0;
 	}
 
 	.card-status-bar {
-		width: 4px;
-		flex-shrink: 0;
-		background-color: #FF9500;
-	}
-
-	.assignment-card.is-completed .card-status-bar {
-		background-color: #34C759;
+		display: none;
 	}
 
 	.card-body {
 		flex: 1;
-		padding: 16px 18px;
+		padding: 18px 20px;
 		display: flex;
 		flex-direction: column;
-		gap: 10px;
+		gap: 12px;
 	}
 
 	.card-row {
@@ -387,27 +381,27 @@
 	}
 
 	.card-title {
-		font-size: 16px;
+		font-size: 15px;
 		font-weight: 600;
-		color: #1A1A2E;
+		color: #333333;
 		flex: 1;
 	}
 
 	.status-tag {
 		font-size: 12px;
-		padding: 3px 10px;
-		border-radius: 10px;
+		padding: 4px 12px;
+		border-radius: 12px;
 		font-weight: 500;
 	}
 
 	.status-tag.pending {
 		color: #FF9500;
-		background-color: #FFF3E0;
+		background-color: #FFF8F0;
 	}
 
 	.status-tag.completed {
 		color: #34C759;
-		background-color: #E8F8ED;
+		background-color: #F0F9F3;
 	}
 
 	.card-row.meta {
@@ -420,20 +414,20 @@
 		align-items: center;
 		gap: 4px;
 		font-size: 13px;
-		color: #9CA3AF;
+		color: #999999;
 	}
 
 	.card-row.footer {
-		padding-top: 10px;
-		border-top: 1px solid #F3F4F6;
+		padding-top: 12px;
+		border-top: 1px solid #F5F6F7;
 	}
 
 	.subject-tag {
 		font-size: 12px;
-		color: #6B7280;
-		background-color: #F2F3F7;
-		padding: 3px 12px;
-		border-radius: 6px;
+		color: #666666;
+		background-color: #F5F6F7;
+		padding: 4px 12px;
+		border-radius: 8px;
 	}
 
 	.score {
@@ -444,13 +438,13 @@
 
 	.score-num {
 		font-size: 20px;
-		font-weight: 700;
-		color: #34C759;
+		font-weight: 600;
+		color: #333333;
 	}
 
 	.score-label {
 		font-size: 12px;
-		color: #9CA3AF;
+		color: #999999;
 	}
 
 	/* 空状态 */
@@ -465,6 +459,6 @@
 
 	.empty-text {
 		font-size: 15px;
-		color: #9CA3AF;
+		color: #CCCCCC;
 	}
 </style>
