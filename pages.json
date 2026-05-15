@@ -23,7 +23,7 @@
 		{
 			"path": "pages/note/note",
 			"style": {
-				"navigationBarTitleText": "笔记"
+				"navigationBarTitleText": "课程"
 			}
 		},
 		{
@@ -68,7 +68,7 @@
 			},
 			{
 				"pagePath": "pages/note/note",
-				"text": "笔记"
+				"text": "课程"
 			},
 			{
 				"pagePath": "pages/mine/mine",
