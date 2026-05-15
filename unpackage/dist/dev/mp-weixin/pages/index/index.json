@@ -1,7 +1,0 @@
-{
-  "navigationBarTitleText": "作业列表",
-  "enablePullDownRefresh": true,
-  "usingComponents": {
-    "uni-badge": "../../uni_modules/uni-badge/components/uni-badge/uni-badge"
-  }
-}
