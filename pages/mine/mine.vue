@@ -7,6 +7,8 @@
 					class="avatar-img" 
 					:src="userInfo.avatar && userInfo.avatar.startsWith('http') ? userInfo.avatar : '/static/logo.png'" 
 					mode="aspectFill"
+					@error="onAvatarError"
+					@load="onAvatarLoad"
 				></image>
 				<view class="edit-badge">
 					<uni-icons type="camera" :size="12" color="#FFFFFF"></uni-icons>
@@ -123,6 +125,18 @@ export default {
 			return uni.getStorageSync('userId')
 		},
 		
+		// 头像加载成功
+		onAvatarLoad(e) {
+			console.log('头像加载成功:', this.userInfo.avatar)
+		},
+		
+		// 头像加载失败
+		onAvatarError(e) {
+			console.error('头像加载失败:', this.userInfo.avatar, e)
+			// 加载失败时使用默认头像
+			this.userInfo.avatar = '/static/logo.png'
+		},
+		
 		// 加载用户信息
 		loadUserInfo() {
 			const userId = this.getUserId()
@@ -173,14 +187,15 @@ export default {
 		
 		// 上传头像
 		uploadAvatar() {
-			// 当前接口不支持修改头像，暂时禁用此功能
-			uni.showToast({
-				title: '头像功能开发中',
-				icon: 'none'
-			})
-			return
+			const userId = this.getUserId()
+			if (!userId) {
+				uni.showToast({
+					title: '请先登录',
+					icon: 'none'
+				})
+				return
+			}
 			
-			/* 等后端提供头像上传接口后再启用
 			uni.chooseImage({
 				count: 1,
 				sizeType: ['compressed'],
@@ -194,7 +209,7 @@ export default {
 					})
 					
 					// 上传图片到服务器
-					uploadImage(tempFilePath).then(result => {
+					uploadImage(tempFilePath, userId).then(result => {
 						uni.hideLoading()
 						
 						console.log('图片上传成功:', result)
@@ -206,13 +221,15 @@ export default {
 							// 更新本地显示
 							this.userInfo.avatar = avatarUrl
 							
-							// 保存头像到服务器
-							this.saveAvatar(avatarUrl)
-							
 							uni.showToast({
 								title: '上传成功',
 								icon: 'success'
 							})
+							
+							// 重新加载用户信息
+							setTimeout(() => {
+								this.loadUserInfo()
+							}, 1500)
 						} else {
 							uni.showToast({
 								title: result.message || '上传失败',
@@ -236,23 +253,6 @@ export default {
 					})
 				}
 			})
-			*/
-		},
-		
-		// 保存头像
-		async saveAvatar(avatarUrl) {
-			const userId = this.getUserId()
-			if (!userId) {
-				return
-			}
-			
-			try {
-				// 注意：当前接口只支持修改name，不支持单独修改avatar
-				// 如果需要修改头像，需要后端提供专门的接口
-				console.log('头像功能暂不支持，等待后端提供接口')
-			} catch (error) {
-				console.error('保存头像失败:', error)
-			}
 		},
 		
 		// 保存用户信息

@@ -69,22 +69,25 @@ export const getClassList = (userId) => {
 }
 
 // 上传图片
-export const uploadImage = (filePath) => {
+export const uploadImage = (filePath, userId) => {
 	return new Promise((resolve, reject) => {
 		const token = uni.getStorageSync('token')
 		const BASE_URL = 'http://192.168.190.160:8080'
 		
+		console.log('开始上传头像，userId:', userId, 'filePath:', filePath)
+		
 		uni.uploadFile({
-			url: BASE_URL + '/api/student/uploadAvatar',
+			url: BASE_URL + `/api/student/uploadAvatar/${userId}`,
 			filePath: filePath,
 			name: 'file',
 			header: {
 				'Authorization': token ? `Bearer ${token}` : ''
 			},
 			success: (res) => {
-				console.log('上传图片响应:', res)
+				console.log('上传头像响应:', res)
 				if (res.statusCode === 200) {
 					const data = JSON.parse(res.data)
+					console.log('上传头像解析后的数据:', data)
 					if (data.code === 200) {
 						resolve(data)
 					} else {
@@ -95,7 +98,7 @@ export const uploadImage = (filePath) => {
 				}
 			},
 			fail: (err) => {
-				console.error('上传图片失败:', err)
+				console.error('上传头像失败:', err)
 				reject(err)
 			}
 		})
