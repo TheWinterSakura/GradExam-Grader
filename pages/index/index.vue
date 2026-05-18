@@ -83,6 +83,8 @@
 		onLoad() {
 			this.loadAssignmentList()
 		},
+		onShow() {
+		},
 		onPullDownRefresh() {
 			this.loadAssignmentList()
 		},
