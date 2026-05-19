@@ -1,308 +1,226 @@
 <template>
 	<view class="login-page">
-		<view class="login-container">
-			<!-- Logo区域 -->
-			<view class="logo-section">
-				<image class="logo-image" src="/static/logo.png" mode="aspectFit"></image>
-				<text class="app-title">考研作业批改</text>
-				<text class="app-subtitle">专业的考研作业批改平台</text>
+		<!-- 顶部品牌区 -->
+		<view class="brand-section">
+			<image class="logo-image" src="/static/logo.png" mode="aspectFill"></image>
+			<text class="brand-name">考研作业批改助手</text>
+			<text class="slogan">研路漫漫，精准批改</text>
+			<view class="countdown">
+				<text class="countdown-text">距离 {{ examYear }} 年考研还有 <text class="countdown-num">{{ daysLeft }}</text> 天</text>
 			</view>
+		</view>
 
-			<!-- 登录卡片 -->
-			<view class="login-card">
-				<view class="card-header">
-					<text class="card-title">欢迎使用</text>
-					<text class="card-desc">使用微信快速登录</text>
+		<!-- 中部登录卡片 -->
+		<view class="login-card">
+			<button 
+				class="login-button" 
+				:disabled="isLoading"
+				@click="handleLogin"
+			>
+				<view class="button-content">
+					<uni-icons v-if="!isLoading" type="weixin" :size="20" color="#FFFFFF"></uni-icons>
+					<text class="button-text">{{ isLoading ? '登录中...' : '微信一键登录' }}</text>
 				</view>
+			</button>
+		</view>
 
-				<!-- 登录按钮 -->
-				<button 
-					class="login-button" 
-					:class="{ loading: isLoading }"
-					:disabled="isLoading"
-					@click="handleLogin"
-					open-type="getUserInfo"
-					@getuserinfo="onGetUserInfo"
-				>
-					<view class="button-content">
-						<uni-icons v-if="!isLoading" type="weixin" :size="20" color="#FFFFFF"></uni-icons>
-						<text class="button-text">{{ isLoading ? '登录中...' : '微信一键登录' }}</text>
-					</view>
-				</button>
-
-				<!-- 提示信息 -->
-				<view class="tips">
-					<text class="tips-text">登录即表示同意</text>
-					<text class="tips-link">《用户协议》</text>
-					<text class="tips-text">和</text>
-					<text class="tips-link">《隐私政策》</text>
-				</view>
-			</view>
-
-			<!-- 装饰元素 -->
-			<view class="decoration-circle circle-1"></view>
-			<view class="decoration-circle circle-2"></view>
-			<view class="decoration-circle circle-3"></view>
+		<!-- 底部协议 -->
+		<view class="agreement-section">
+			<text class="agreement-text">登录即表示同意</text>
+			<text class="agreement-link">《用户服务协议》</text>
+			<text class="agreement-text">与</text>
+			<text class="agreement-link">《隐私政策》</text>
 		</view>
 	</view>
 </template>
 
 <script>
-	import { login } from '@/api/student.js'
-	
-	export default {
-		data() {
-			return {
-				isLoading: false
-			}
+import { login } from '@/api/student.js'
+
+export default {
+	data() {
+		return {
+			isLoading: false,
+			examYear: 2026,
+			daysLeft: 0
+		}
+	},
+	onLoad() {
+		const token = uni.getStorageSync('token')
+		if (token) {
+			uni.switchTab({ url: '/pages/index/index' })
+		}
+		this.calcDaysLeft()
+	},
+	methods: {
+		calcDaysLeft() {
+			// 考研一般在12月最后一个周末，这里取12月20日作为近似
+			const now = new Date()
+			const currentYear = now.getFullYear()
+			const currentMonth = now.getMonth()
+			// 如果当前已过12月，目标为下一年
+			let targetYear = currentMonth >= 11 ? currentYear + 1 : currentYear
+			// 确保目标年份合理
+			if (targetYear < this.examYear) targetYear = this.examYear
+			this.examYear = targetYear
+			const examDate = new Date(targetYear, 11, 20)
+			const diff = examDate.getTime() - now.getTime()
+			this.daysLeft = Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
 		},
-		onLoad() {
-			// 检查是否已登录
-			const token = uni.getStorageSync('token')
-			if (token) {
-				console.log('已登录，跳转到首页')
-				uni.switchTab({
-					url: '/pages/index/index'
-				})
-			}
-		},
-		methods: {
-			// 获取用户信息回调
-			onGetUserInfo(e) {
-				if (e.detail.errMsg === 'getUserInfo:ok') {
-					console.log('用户信息:', e.detail.userInfo)
-				}
-			},
-			
-			// 处理登录
-			handleLogin() {
-				if (this.isLoading) return
-				
-				this.isLoading = true
-				console.log('开始登录流程...')
-				
-				// 1. 获取微信登录凭证
-				uni.login({
-					provider: 'weixin',
-					success: async (loginRes) => {
-						try {
-							console.log('微信登录返回:', loginRes)
-							
-							if (loginRes.code) {
-								console.log('获取到code:', loginRes.code)
-								
-								// 2. 调用后端登录接口
-								console.log('调用后端登录接口...')
-								const result = await login(loginRes.code)
-								console.log('后端返回结果:', result)
-								
-								if (result.code === 200) {
-									// 3. 保存token和用户信息
-									uni.setStorageSync('token', result.data.token)
-									uni.setStorageSync('userId', result.data.userId)
-									console.log('Token已保存')
-									
-									uni.showToast({
-										title: '登录成功',
-										icon: 'success',
-										duration: 1500
-									})
-									
-									// 4. 延迟跳转到首页
-									setTimeout(() => {
-										uni.switchTab({
-											url: '/pages/index/index'
-										})
-									}, 1500)
-								} else {
-									throw new Error(result.message || '登录失败')
-								}
+		handleLogin() {
+			if (this.isLoading) return
+			this.isLoading = true
+
+			uni.login({
+				provider: 'weixin',
+				success: async (loginRes) => {
+					try {
+						if (loginRes.code) {
+							const result = await login(loginRes.code)
+							if (result.code === 200) {
+								uni.setStorageSync('token', result.data.token)
+								uni.setStorageSync('userId', result.data.userId)
+								uni.showToast({ title: '登录成功', icon: 'success', duration: 1500 })
+								setTimeout(() => {
+									uni.switchTab({ url: '/pages/index/index' })
+								}, 1500)
 							} else {
-								throw new Error('获取登录凭证失败：code为空')
+								throw new Error(result.message || '登录失败')
 							}
-						} catch (error) {
-							console.error('登录失败:', error)
-							uni.showToast({
-								title: error.message || '登录失败，请重试',
-								icon: 'none',
-								duration: 2000
-							})
-							this.isLoading = false
+						} else {
+							throw new Error('获取登录凭证失败')
 						}
-					},
-					fail: (err) => {
-						console.error('微信登录失败:', err)
-						uni.showToast({
-							title: '微信授权失败，请重试',
-							icon: 'none',
-							duration: 2000
-						})
+					} catch (error) {
+						uni.showToast({ title: error.message || '登录失败，请重试', icon: 'none' })
 						this.isLoading = false
 					}
-				})
-			}
+				},
+				fail: () => {
+					uni.showToast({ title: '微信授权失败，请重试', icon: 'none' })
+					this.isLoading = false
+				}
+			})
 		}
 	}
+}
 </script>
 
+<style>
+page {
+	background-color: #EEF2FF;
+}
+</style>
+
 <style scoped>
-	.login-page {
-		min-height: 100vh;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		position: relative;
-		overflow: hidden;
-	}
+.login-page {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: relative;
+	background-color: #EEF2FF;
+}
 
-	.login-container {
-		min-height: 100vh;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		padding: 40px 32px;
-		position: relative;
-		z-index: 1;
-	}
+/* 顶部品牌区 */
+.brand-section {
+	margin-top: 120px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
 
-	/* Logo区域 */
-	.logo-section {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		margin-bottom: 60px;
-	}
+.logo-image {
+	width: 88px;
+	height: 88px;
+	border-radius: 50%;
+	box-shadow: 0 4px 16px rgba(79, 110, 247, 0.15);
+}
 
-	.logo-image {
-		width: 100px;
-		height: 100px;
-		margin-bottom: 24px;
-		border-radius: 24px;
-		background-color: rgba(255, 255, 255, 0.2);
-		padding: 16px;
-	}
+.brand-name {
+	margin-top: 20px;
+	font-size: 22px;
+	font-weight: 700;
+	color: #1A1A2E;
+}
 
-	.app-title {
-		font-size: 32px;
-		font-weight: 700;
-		color: #FFFFFF;
-		margin-bottom: 8px;
-		text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-	}
+.slogan {
+	margin-top: 8px;
+	font-size: 14px;
+	color: #9CA3AF;
+	letter-spacing: 2px;
+}
 
-	.app-subtitle {
-		font-size: 15px;
-		color: rgba(255, 255, 255, 0.85);
-		font-weight: 400;
-	}
+.countdown {
+	margin-top: 24px;
+	padding: 8px 20px;
+	background-color: rgba(79, 110, 247, 0.08);
+	border-radius: 20px;
+}
 
-	/* 登录卡片 */
-	.login-card {
-		width: 100%;
-		background-color: #FFFFFF;
-		border-radius: 24px;
-		padding: 36px 28px;
-		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-	}
+.countdown-text {
+	font-size: 13px;
+	color: #6B7280;
+}
 
-	.card-header {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		margin-bottom: 32px;
-	}
+.countdown-num {
+	font-size: 16px;
+	font-weight: 700;
+	color: #4F6EF7;
+}
 
-	.card-title {
-		font-size: 24px;
-		font-weight: 700;
-		color: #1A1A2E;
-		margin-bottom: 8px;
-	}
+/* 中部登录卡片 */
+.login-card {
+	position: absolute;
+	top: 62%;
+	width: 100%;
+	padding: 0 40px;
+	box-sizing: border-box;
+}
 
-	.card-desc {
-		font-size: 14px;
-		color: #9CA3AF;
-	}
+.login-button {
+	width: 100%;
+	height: 48px;
+	background-color: #07C160;
+	border-radius: 24px;
+	border: none;
+	box-shadow: 0 6px 20px rgba(7, 193, 96, 0.25);
+}
 
-	/* 登录按钮 */
-	.login-button {
-		width: 100%;
-		height: 50px;
-		background: linear-gradient(135deg, #4F6EF7, #7B8FF7);
-		border-radius: 14px;
-		border: none;
-		box-shadow: 0 8px 24px rgba(79, 110, 247, 0.3);
-		transition: all 0.3s ease;
-		margin-bottom: 24px;
-	}
+.login-button::after {
+	border: none;
+}
 
-	.login-button::after {
-		border: none;
-	}
+.button-content {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 100%;
+}
 
-	.login-button.loading {
-		opacity: 0.7;
-	}
+.button-text {
+	font-size: 16px;
+	font-weight: 600;
+	color: #FFFFFF;
+}
 
-	.button-content {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-		height: 100%;
-	}
+/* 底部协议 */
+.agreement-section {
+	position: absolute;
+	bottom: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+}
 
-	.button-text {
-		font-size: 16px;
-		font-weight: 600;
-		color: #FFFFFF;
-	}
+.agreement-text {
+	font-size: 12px;
+	color: #9CA3AF;
+}
 
-	/* 提示信息 */
-	.tips {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-wrap: wrap;
-		gap: 4px;
-	}
-
-	.tips-text {
-		font-size: 12px;
-		color: #9CA3AF;
-	}
-
-	.tips-link {
-		font-size: 12px;
-		color: #4F6EF7;
-		font-weight: 500;
-	}
-
-	/* 装饰圆圈 */
-	.decoration-circle {
-		position: absolute;
-		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.1);
-		z-index: 0;
-	}
-
-	.circle-1 {
-		width: 200px;
-		height: 200px;
-		top: -100px;
-		right: -50px;
-	}
-
-	.circle-2 {
-		width: 150px;
-		height: 150px;
-		bottom: 100px;
-		left: -75px;
-	}
-
-	.circle-3 {
-		width: 100px;
-		height: 100px;
-		top: 40%;
-		right: -30px;
-	}
+.agreement-link {
+	font-size: 12px;
+	color: #4F6EF7;
+}
 </style>

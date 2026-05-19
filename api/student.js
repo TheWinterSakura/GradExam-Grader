@@ -11,14 +11,6 @@ export const login = (code) => {
 	})
 }
 
-// 获取学生信息
-export const getStudentInfo = () => {
-	return request({
-		url: '/api/student/info',
-		method: 'GET'
-	})
-}
-
 // 更新学生信息
 export const updateStudentInfo = (data) => {
 	return request({
@@ -47,14 +39,15 @@ export const joinClass = (code, userId) => {
 }
 
 // 设置个人信息
-export const setUserInfo = (name, userId) => {
+export const setUserInfo = (name, userId, phone) => {
 	return request({
 		url: '/api/student/setUserInfo',
 		method: 'POST',
 		data: { 
 			userId: userId,
 			username: name,
-			name: name
+			name: name,
+			phone: phone || ''
 		}
 	})
 }
@@ -65,6 +58,15 @@ export const getClassList = (userId) => {
 		url: '/api/student/getClassList',
 		method: 'GET',
 		data: { userId }
+	})
+}
+
+// 获取作业列表
+export const getAssignmentList = (classId) => {
+	return request({
+		url: '/api/student/getAssignmentList',
+		method: 'GET',
+		data: { classId }
 	})
 }
 

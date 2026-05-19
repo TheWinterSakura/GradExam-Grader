@@ -64,6 +64,8 @@
 </template>
 
 <script>
+	import { getAssignmentList } from '@/api/student.js'
+	
 	export default {
 		data() {
 			return {
@@ -92,7 +94,6 @@
 			// 加载作业列表
 			loadAssignmentList() {
 				const that = this
-				const { getAssignmentList } = require('@/api/student.js')
 				
 				getAssignmentList(this.classId).then(result => {
 					if (result.code === 200) {
