@@ -81,16 +81,131 @@
 			}
 		},
 		onLoad() {
-			this.loadAssignmentList()
+			this.loadAllWork()
 		},
 		onPullDownRefresh() {
-			this.loadAssignmentList()
+			console.log('触发下拉刷新')
+			this.loadAllWork()
 		},
 		methods: {
-			// 加载作业列表
+			// 加载学生所有作业
+			loadAllWork() {
+				const that = this
+				const studentId = uni.getStorageSync('userId')
+				console.log('获取学生作业，studentId:', studentId)
+				
+				if (!studentId) {
+					console.error('未找到userId，请先登录')
+					uni.showToast({
+						title: '请先登录',
+						icon: 'none'
+					})
+					uni.stopPullDownRefresh()
+					return
+				}
+				
+				// 直接调用接口
+				uni.request({
+					url: 'http://192.168.190.160:8080/api/student/allWork',
+					method: 'GET',
+					data: { studentId: studentId },
+					header: {
+						'Content-Type': 'application/json',
+						'Authorization': 'Bearer ' + uni.getStorageSync('token')
+					},
+					success: function(res) {
+						console.log('getAllWork 返回结果:', res)
+						
+						if (res.statusCode === 200 && res.data.code === 200) {
+							console.log('作业数据:', res.data.data)
+							
+							// 转换数据格式
+							if (Array.isArray(res.data.data)) {
+								that.assignmentList = res.data.data.map(function(item) {
+									return {
+										id: item.assignmentId,
+										title: item.title,
+										description: item.description,
+										className: item.className,
+										studentName: '我',
+										submitTime: item.deadline || '未设置截止时间',
+										subject: that.getSubjectFromTitle(item.title),
+										status: item.status === 0 ? 'pending' : 'completed',
+										statusText: item.status === 0 ? '待完成' : '已完成',
+										score: item.status === 1 ? item.totalScore : null
+									}
+								})
+								
+								// 提取课程列表（去重）
+								that.extractCourseList()
+								
+								// 显示刷新成功提示
+								uni.showToast({
+									title: '刷新成功',
+									icon: 'success',
+									duration: 1000
+								})
+							}
+						} else {
+							uni.showToast({
+								title: '加载失败',
+								icon: 'none'
+							})
+						}
+						uni.stopPullDownRefresh()
+					},
+					fail: function(error) {
+						console.error('加载作业列表失败:', error)
+						uni.showToast({
+							title: '网络错误',
+							icon: 'none'
+						})
+						uni.stopPullDownRefresh()
+					}
+				})
+			},
+			
+			// 从作业列表中提取课程列表
+			extractCourseList() {
+				const classMap = {}
+				
+				// 统计每个班级的作业数量
+				this.assignmentList.forEach(function(item) {
+					if (item.className) {
+						if (!classMap[item.className]) {
+							classMap[item.className] = {
+								name: item.className,
+								total: 0,
+								completed: 0,
+								pending: 0
+							}
+						}
+						classMap[item.className].total++
+						if (item.status === 'completed') {
+							classMap[item.className].completed++
+						} else {
+							classMap[item.className].pending++
+						}
+					}
+				})
+				
+				// 转换为数组
+				this.courseList = Object.keys(classMap).map(function(key, index) {
+					const course = classMap[key]
+					return {
+						id: index + 1,
+						name: course.name,
+						description: '共' + course.total + '个作业',
+						studentCount: course.completed + '/' + course.total,
+						time: course.pending + '个待完成'
+					}
+				})
+			},
+			
+			// 旧的加载方法（保留作为备用）
 			loadAssignmentList() {
 				const that = this
-				const { getAssignmentList } = require('@/api/student.js')
+				const { getAssignmentList } = require('../../api/student.js')
 				
 				getAssignmentList(this.classId).then(result => {
 					if (result.code === 200) {
@@ -193,6 +308,13 @@
 		font-weight: 600;
 		color: #333333;
 		flex: 1;
+	}
+
+	.card-desc {
+		font-size: 13px;
+		color: #999999;
+		line-height: 1.5;
+		margin-top: -4px;
 	}
 
 	.status-tag {

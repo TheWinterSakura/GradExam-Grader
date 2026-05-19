@@ -48,8 +48,6 @@
 </template>
 
 <script>
-	import { login } from '@/api/student.js'
-	
 	export default {
 		data() {
 			return {
@@ -76,6 +74,7 @@
 			
 			// 处理登录
 			handleLogin() {
+				const that = this
 				if (this.isLoading) return
 				
 				this.isLoading = true
@@ -84,60 +83,79 @@
 				// 1. 获取微信登录凭证
 				uni.login({
 					provider: 'weixin',
-					success: async (loginRes) => {
-						try {
-							console.log('微信登录返回:', loginRes)
+					success: function(loginRes) {
+						console.log('微信登录返回:', loginRes)
+						
+						if (loginRes.code) {
+							console.log('获取到code:', loginRes.code)
 							
-							if (loginRes.code) {
-								console.log('获取到code:', loginRes.code)
-								
-								// 2. 调用后端登录接口
-								console.log('调用后端登录接口...')
-								const result = await login(loginRes.code)
-								console.log('后端返回结果:', result)
-								
-								if (result.code === 200) {
-									// 3. 保存token和用户信息
-									uni.setStorageSync('token', result.data.token)
-									uni.setStorageSync('userId', result.data.userId)
-									console.log('Token已保存')
+							// 2. 调用后端登录接口
+							console.log('调用后端登录接口...')
+							uni.request({
+								url: 'http://192.168.190.160:8080/api/student/login',
+								method: 'POST',
+								data: { code: loginRes.code },
+								header: {
+									'Content-Type': 'application/json'
+								},
+								success: function(res) {
+									console.log('后端返回结果:', res)
 									
-									uni.showToast({
-										title: '登录成功',
-										icon: 'success',
-										duration: 1500
-									})
-									
-									// 4. 延迟跳转到首页
-									setTimeout(() => {
-										uni.switchTab({
-											url: '/pages/index/index'
+									if (res.statusCode === 200 && res.data.code === 200) {
+										// 3. 保存token和用户信息
+										uni.setStorageSync('token', res.data.data.token)
+										uni.setStorageSync('userId', res.data.data.userId)
+										console.log('Token已保存')
+										
+										uni.showToast({
+											title: '登录成功',
+											icon: 'success',
+											duration: 1500
 										})
-									}, 1500)
-								} else {
-									throw new Error(result.message || '登录失败')
+										
+										// 4. 延迟跳转到首页
+										setTimeout(function() {
+											uni.switchTab({
+												url: '/pages/index/index'
+											})
+										}, 1500)
+									} else {
+										uni.showToast({
+											title: res.data.message || '登录失败',
+											icon: 'none',
+											duration: 2000
+										})
+										that.isLoading = false
+									}
+								},
+								fail: function(error) {
+									console.error('登录失败:', error)
+									uni.showToast({
+										title: '登录失败，请重试',
+										icon: 'none',
+										duration: 2000
+									})
+									that.isLoading = false
 								}
-							} else {
-								throw new Error('获取登录凭证失败：code为空')
-							}
-						} catch (error) {
-							console.error('登录失败:', error)
+							})
+						} else {
+							console.error('获取登录凭证失败：code为空')
 							uni.showToast({
-								title: error.message || '登录失败，请重试',
+								title: '获取登录凭证失败',
 								icon: 'none',
 								duration: 2000
 							})
-							this.isLoading = false
+							that.isLoading = false
 						}
 					},
-					fail: (err) => {
+					fail: function(err) {
 						console.error('微信登录失败:', err)
 						uni.showToast({
 							title: '微信授权失败，请重试',
 							icon: 'none',
 							duration: 2000
 						})
-						this.isLoading = false
+						that.isLoading = false
 					}
 				})
 			}

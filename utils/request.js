@@ -1,21 +1,28 @@
 // API基础配置
-import { BASE_URL } from '@/config/index.js'
+const config = require('../config/index.js')
+const BASE_URL = config.BASE_URL
 
 // 请求拦截器
-const request = (options) => {
-	return new Promise((resolve, reject) => {
+function request(options) {
+	return new Promise(function(resolve, reject) {
 		// 获取token
 		const token = uni.getStorageSync('token')
 		
 		// 设置请求头
 		const header = {
-			'Content-Type': 'application/json',
-			...options.header
+			'Content-Type': 'application/json'
+		}
+		
+		// 合并自定义header
+		if (options.header) {
+			for (let key in options.header) {
+				header[key] = options.header[key]
+			}
 		}
 		
 		// 如果有token，添加到请求头
 		if (token) {
-			header['Authorization'] = `Bearer ${token}`
+			header['Authorization'] = 'Bearer ' + token
 		}
 		
 		const requestUrl = BASE_URL + options.url
@@ -26,7 +33,7 @@ const request = (options) => {
 			method: options.method || 'GET',
 			data: options.data || {},
 			header: header,
-			success: (res) => {
+			success: function(res) {
 				console.log('请求响应:', requestUrl, res.statusCode, res.data)
 				
 				// 请求成功
@@ -47,7 +54,7 @@ const request = (options) => {
 					reject(new Error(errorMsg))
 				}
 			},
-			fail: (err) => {
+			fail: function(err) {
 				// 请求失败
 				console.error('网络请求失败:', requestUrl, err)
 				uni.showToast({
@@ -60,5 +67,5 @@ const request = (options) => {
 	})
 }
 
-// 导出请求方法
-export default request
+// 导出
+module.exports = request

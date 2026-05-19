@@ -105,7 +105,7 @@
 			// 加载作业详情
 			loadAssignmentDetail() {
 				const that = this
-				const { getAssignmentDetail } = require('@/api/student.js')
+				const { getAssignmentDetail } = require('../../api/student.js')
 				
 				getAssignmentDetail(this.assignmentId).then(result => {
 					if (result.code === 200 && result.data.length > 0) {

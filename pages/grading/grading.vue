@@ -88,7 +88,7 @@
 			// 加载作业详情
 			loadAssignmentDetail() {
 				const that = this
-				const { getAssignmentDetail } = require('@/api/student.js')
+				const { getAssignmentDetail } = require('../../api/student.js')
 				
 				getAssignmentDetail(this.assignmentId).then(result => {
 					if (result.code === 200) {
@@ -143,8 +143,8 @@
 					content: '确认提交作业？',
 					success: function(res) {
 						if (res.confirm) {
-							const { submitAssignment } = require('@/api/student.js')
-							const { getUserId } = require('@/utils/auth.js')
+							const { submitAssignment } = require('../../api/student.js')
+							const { getUserId } = require('../../utils/auth.js')
 							
 							// 构建提交数据
 							const details = that.questions.map((q, index) => ({

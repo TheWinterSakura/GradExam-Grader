@@ -82,8 +82,8 @@
 			// 加载用户信息
 			loadUserInfo() {
 				const that = this
-				const { getUserInfo } = require('@/api/student.js')
-				const { getUserId } = require('@/utils/auth.js')
+				const { getUserInfo } = require('../../api/student.js')
+				const { getUserId } = require('../../utils/auth.js')
 				
 				const userId = getUserId()
 				getUserInfo(userId).then(result => {
@@ -108,7 +108,7 @@
 			},
 			
 			logout() {
-				const { clearAuth, goToLogin } = require('@/utils/auth.js')
+				const { clearAuth, goToLogin } = require('../../utils/auth.js')
 				
 				uni.showModal({
 					title: '提示',

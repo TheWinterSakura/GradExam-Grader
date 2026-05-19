@@ -1,6 +1,4 @@
 <script>
-	import { isLoggedIn, goToLogin } from '@/utils/auth.js'
-	
 	export default {
 		onLaunch: function() {
 			console.log('考研作业批改系统启动')
@@ -21,9 +19,14 @@
 				const currentPage = pages[pages.length - 1]
 				const route = currentPage ? currentPage.route : ''
 				
+				// 检查是否已登录
+				const token = uni.getStorageSync('token')
+				
 				// 如果不在登录页且未登录，跳转到登录页
-				if (route !== 'pages/login/login' && !isLoggedIn()) {
-					goToLogin()
+				if (route !== 'pages/login/login' && !token) {
+					uni.reLaunch({
+						url: '/pages/login/login'
+					})
 				}
 			}
 		}
