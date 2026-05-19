@@ -94,8 +94,9 @@
 			// 加载作业列表
 			loadAssignmentList() {
 				const that = this
+				const userId = uni.getStorageSync('userId')
 				
-				getAssignmentList(this.classId).then(result => {
+				getAssignmentList(userId, this.classId).then(result => {
 					if (result.code === 200) {
 						// 转换后端数据为页面格式
 						that.assignmentList = result.data.map(item => ({

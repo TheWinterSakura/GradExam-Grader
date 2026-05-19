@@ -62,11 +62,18 @@ export const getClassList = (userId) => {
 }
 
 // 获取作业列表
-export const getAssignmentList = (classId) => {
+export const getAssignmentList = (studentId, classId) => {
 	return request({
-		url: '/api/student/getAssignmentList',
-		method: 'GET',
-		data: { classId }
+		url: `/api/student/assignment/${studentId}/${classId}`,
+		method: 'GET'
+	})
+}
+
+// 获取作业详情（题目列表）
+export const getAssignmentDetail = (assignmentId) => {
+	return request({
+		url: `/api/student/work/${assignmentId}`,
+		method: 'GET'
 	})
 }
 

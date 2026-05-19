@@ -33,6 +33,12 @@
 			}
 		},
 		{
+			"path": "pages/class-detail/class-detail",
+			"style": {
+				"navigationBarTitleText": "班级详情"
+			}
+		},
+		{
 			"path": "pages/detail/detail",
 			"style": {
 				"navigationBarTitleText": "作业详情"

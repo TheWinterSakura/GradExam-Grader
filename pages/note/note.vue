@@ -1,86 +1,77 @@
 <template>
 	<view class="page">
-		<!-- 顶部标题栏 -->
-		<view class="header">
-			<text class="header-title">我的课程</text>
-			<view class="join-btn" @click="showJoinDialog">
-				<uni-icons type="plus" :size="16" color="#FFFFFF"></uni-icons>
-				<text class="join-text">加入班级</text>
-			</view>
+		<!-- 顶部品牌区 -->
+		<view class="header-bg">
+			<text class="header-title">我的专属班级</text>
+			<text class="header-subtitle">研途漫漫，我们与你同在</text>
 		</view>
 
-		<!-- 课程列表 -->
-		<view class="class-list" v-if="classList.length > 0">
-			<view class="class-card" v-for="item in classList" :key="item.id" @click="goToClassDetail(item)">
-				<view class="card-header">
-					<view class="class-info">
+		<!-- 内容区 -->
+		<view class="content">
+			<!-- 加载状态：骨架屏 -->
+			<view v-if="loading" class="skeleton-card">
+				<view class="skeleton-row skeleton-row-1"></view>
+				<view class="skeleton-row skeleton-row-2"></view>
+				<view class="skeleton-row skeleton-row-3"></view>
+			</view>
+
+			<!-- 成功状态：班级列表 -->
+			<view v-else-if="classList.length > 0">
+				<!-- 公告栏 -->
+				<view class="notice-bar">
+					<uni-icons type="sound" :size="14" color="#F59E0B"></uni-icons>
+					<text class="notice-text">请按时提交每日作业，老师会在 24 小时内完成批改</text>
+				</view>
+
+				<!-- 班级卡片 -->
+				<view 
+					class="class-card" 
+					v-for="item in classList" 
+					:key="item.id" 
+					@click="goToClassDetail(item)"
+				>
+					<view class="card-header">
+						<view class="subject-tag">
+							<text class="subject-text">{{ item.subject }}</text>
+						</view>
 						<text class="class-name">{{ item.name }}</text>
-						<text class="class-teacher">{{ item.teacher }}</text>
+						<view class="status-tag">
+							<text class="status-text">已加入</text>
+						</view>
 					</view>
-					<view class="class-badge" :class="item.status">
-						<text class="badge-text">{{ item.statusText }}</text>
+
+					<view class="card-body">
+						<view class="info-row">
+							<text class="info-label">授课教师</text>
+							<text class="info-value">{{ item.teacherName }}</text>
+						</view>
+						<view class="info-row">
+							<text class="info-label">班级人数</text>
+							<text class="info-value">{{ item.peopleNumber }} 人</text>
+						</view>
 					</view>
-				</view>
-				<view class="card-body">
-					<view class="info-item">
-						<uni-icons type="person" :size="14" color="#9CA3AF"></uni-icons>
-						<text class="info-text">{{ item.studentCount }} 人</text>
-					</view>
-					<view class="info-item">
-						<uni-icons type="calendar" :size="14" color="#9CA3AF"></uni-icons>
-						<text class="info-text">{{ item.schedule }}</text>
-					</view>
-				</view>
-				<view class="card-footer">
-					<text class="class-code">班级码：{{ item.classCode }}</text>
 				</view>
 			</view>
-		</view>
 
-		<!-- 空状态 -->
-		<view class="empty" v-else>
-			<view class="empty-illustration">
-				<uni-icons type="folder-add" :size="56" color="#D1D5DB"></uni-icons>
-			</view>
-			<text class="empty-title">还没有加入班级</text>
-			<text class="empty-desc">点击右上角"加入班级"按钮，输入班级码即可加入</text>
-		</view>
-
-		<!-- 加入班级弹窗 -->
-		<view class="modal-mask" v-if="showDialog" @click="closeDialog">
-			<view class="modal-content" @click.stop>
-				<view class="modal-header">
-					<text class="modal-title">加入班级</text>
+			<!-- 空状态 -->
+			<view v-else class="empty">
+				<view class="empty-illustration">
+					<uni-icons type="folder-add" :size="56" color="#D1D5DB"></uni-icons>
 				</view>
-				<view class="modal-body">
-					<input 
-						class="class-code-input" 
-						v-model="classCode" 
-						placeholder="请输入班级码"
-						:focus="showDialog"
-					/>
-				</view>
-				<view class="modal-footer">
-					<view class="modal-btn cancel" @click="closeDialog">
-						<text class="btn-text">取消</text>
-					</view>
-					<view class="modal-btn confirm" @click="joinClass">
-						<text class="btn-text">确定</text>
-					</view>
-				</view>
+				<text class="empty-title">暂未分配到班级</text>
+				<text class="empty-desc">请耐心等待，或联系授课老师/助教进行添加</text>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
-import { joinClass, getClassList } from '@/api/student.js'
+import { getClassList } from '@/api/student.js'
 
 export default {
 	data() {
 		return {
-			showDialog: false,
-			classCode: '',
+			loading: true,
 			classList: []
 		}
 	},
@@ -91,260 +82,191 @@ export default {
 		this.loadClassList()
 	},
 	methods: {
-		// 获取用户ID
 		getUserId() {
 			return uni.getStorageSync('userId')
 		},
-		
-		// 加载班级列表
 		async loadClassList() {
 			const userId = this.getUserId()
 			if (!userId) {
-				console.log('未登录，无法加载班级列表')
+				this.loading = false
 				return
 			}
-			
+			this.loading = true
 			try {
-				console.log('开始加载班级列表，userId:', userId)
-				
 				const res = await getClassList(userId)
-				
-				console.log('班级列表响应:', res)
-				
 				if (res.code === 200 && res.data) {
-					// 处理班级列表数据
-					this.classList = res.data.map(item => ({
-						id: item.id,
+					this.classList = res.data.map((item, index) => ({
+						id: item.id || index,
 						name: item.name,
-						teacher: item.teacherId ? `教师ID: ${item.teacherId}` : '未知教师',
-						studentCount: 0, // 接口未返回学生数量
-						schedule: item.grade || '未设置',
-						classCode: item.code,
-						status: 'active',
-						statusText: '进行中',
-						description: item.description,
-						createTime: item.createTime
+						teacherName: item.teacherName || '未知教师',
+						subject: item.subject || '未设置',
+						peopleNumber: item.peopleNumber || 0
 					}))
-					
-					console.log('班级列表已更新:', this.classList)
 				}
 			} catch (error) {
 				console.error('加载班级列表失败:', error)
+			} finally {
+				this.loading = false
 			}
 		},
-		
-		// 显示加入班级弹窗
-		showJoinDialog() {
-			this.classCode = ''
-			this.showDialog = true
-		},
-		
-		// 关闭弹窗
-		closeDialog() {
-			this.showDialog = false
-			this.classCode = ''
-		},
-		
-		// 加入班级
-		async joinClass() {
-			if (!this.classCode || this.classCode.trim() === '') {
-				uni.showToast({
-					title: '请输入班级码',
-					icon: 'none'
-				})
-				return
-			}
-			
-			const userId = this.getUserId()
-			if (!userId) {
-				uni.showToast({
-					title: '请先登录',
-					icon: 'none'
-				})
-				return
-			}
-			
-			try {
-				console.log('加入班级，班级码:', this.classCode, 'userId:', userId)
-				
-				uni.showLoading({
-					title: '加入中...'
-				})
-				
-				const res = await joinClass(this.classCode, userId)
-				
-				uni.hideLoading()
-				
-				console.log('加入班级响应:', res)
-				
-				if (res.code === 200) {
-					this.closeDialog()
-					
-					uni.showToast({
-						title: '加入成功',
-						icon: 'success'
-					})
-					
-					// 重新加载班级列表
-					setTimeout(() => {
-						this.loadClassList()
-					}, 1500)
-				}
-			} catch (error) {
-				uni.hideLoading()
-				console.error('加入班级失败:', error)
-				
-				uni.showToast({
-					title: error.message || '加入失败',
-					icon: 'none'
-				})
-			}
-		},
-		
-		// 进入班级详情
 		goToClassDetail(item) {
-			uni.showToast({
-				title: '进入班级：' + item.name,
-				icon: 'none'
+			uni.navigateTo({
+				url: `/pages/class-detail/class-detail?id=${item.id}&name=${encodeURIComponent(item.name)}&teacherName=${encodeURIComponent(item.teacherName)}&peopleNumber=${item.peopleNumber}&subject=${encodeURIComponent(item.subject)}`
 			})
-			// TODO: 跳转到班级详情页
 		}
 	}
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .page {
 	min-height: 100vh;
-	background-color: #F2F3F7;
-	padding-bottom: 60px;
+	background-color: #EEF2FF;
 }
 
-/* 顶部标题栏 */
-.header {
-	background-color: #FFFFFF;
-	padding: 16px 16px 12px;
+/* 顶部品牌区 */
+.header-bg {
+	background-color: #4F6EF7;
+	padding: 60px 24px 60px;
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+	flex-direction: column;
+	gap: 6px;
 }
 
 .header-title {
-	font-size: 20px;
+	font-size: 22px;
 	font-weight: 700;
-	color: #1A1A2E;
+	color: #FFFFFF;
 }
 
-.join-btn {
+.header-subtitle {
+	font-size: 13px;
+	color: rgba(255, 255, 255, 0.8);
+	letter-spacing: 1px;
+}
+
+/* 内容区，向上偏移让卡片压在头部 */
+.content {
+	margin-top: -32px;
+	padding: 0 16px 80px;
+}
+
+/* 公告栏 */
+.notice-bar {
 	display: flex;
 	align-items: center;
-	gap: 4px;
-	padding: 8px 16px;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	border-radius: 20px;
-	box-shadow: 0 2px 8px rgba(79, 110, 247, 0.3);
+	gap: 8px;
+	background-color: #FFFBEB;
+	border: 1px solid #FCD34D;
+	border-radius: 10px;
+	padding: 10px 14px;
+	margin-bottom: 12px;
 }
 
-.join-text {
-	font-size: 14px;
-	color: #FFFFFF;
-	font-weight: 500;
+.notice-text {
+	font-size: 12px;
+	color: #B45309;
+	flex: 1;
 }
 
-/* 课程列表 */
-.class-list {
-	padding: 16px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-}
-
+/* 班级卡片 */
 .class-card {
 	background-color: #FFFFFF;
 	border-radius: 16px;
-	padding: 16px;
-	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+	padding: 18px;
+	margin-bottom: 12px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .card-header {
 	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	margin-bottom: 12px;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 14px;
+	padding-bottom: 14px;
+	border-bottom: 1px solid #F3F4F6;
 }
 
-.class-info {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	flex: 1;
+.subject-tag {
+	padding: 4px 10px;
+	border-radius: 8px;
+	flex-shrink: 0;
+	background-color: #EEF2FF;
+}
+
+.subject-text {
+	font-size: 12px;
+	font-weight: 600;
+	color: #4F6EF7;
 }
 
 .class-name {
-	font-size: 17px;
+	flex: 1;
+	font-size: 16px;
 	font-weight: 600;
 	color: #1A1A2E;
 }
 
-.class-teacher {
-	font-size: 13px;
-	color: #9CA3AF;
-}
-
-.class-badge {
-	padding: 4px 12px;
-	border-radius: 12px;
+.status-tag {
 	background-color: #E8F5E9;
+	padding: 3px 10px;
+	border-radius: 10px;
+	flex-shrink: 0;
 }
 
-.class-badge.active {
-	background-color: #E8F5E9;
-}
-
-.class-badge.ended {
-	background-color: #F3F4F6;
-}
-
-.badge-text {
-	font-size: 12px;
+.status-text {
+	font-size: 11px;
 	color: #34C759;
 	font-weight: 500;
 }
 
-.class-badge.ended .badge-text {
-	color: #9CA3AF;
-}
-
 .card-body {
 	display: flex;
-	gap: 16px;
-	margin-bottom: 12px;
-	padding-bottom: 12px;
-	border-bottom: 1px solid #F3F4F6;
+	flex-direction: column;
+	gap: 10px;
 }
 
-.info-item {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-}
-
-.info-text {
-	font-size: 13px;
-	color: #6B7280;
-}
-
-.card-footer {
+.info-row {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 }
 
-.class-code {
-	font-size: 12px;
+.info-label {
+	font-size: 13px;
 	color: #9CA3AF;
-	font-family: monospace;
+}
+
+.info-value {
+	font-size: 13px;
+	color: #1A1A2E;
+	font-weight: 500;
+}
+
+/* 骨架屏 */
+.skeleton-card {
+	background-color: #FFFFFF;
+	border-radius: 16px;
+	padding: 18px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.skeleton-row {
+	height: 14px;
+	background: linear-gradient(90deg, #F3F4F6 0%, #E5E7EB 50%, #F3F4F6 100%);
+	border-radius: 7px;
+	margin-bottom: 12px;
+	animation: skeleton 1.4s ease infinite;
+}
+
+.skeleton-row-1 { width: 60%; height: 18px; }
+.skeleton-row-2 { width: 90%; }
+.skeleton-row-3 { width: 40%; }
+
+@keyframes skeleton {
+	0% { opacity: 1; }
+	50% { opacity: 0.5; }
+	100% { opacity: 1; }
 }
 
 /* 空状态 */
@@ -353,7 +275,10 @@ export default {
 	flex-direction: column;
 	align-items: center;
 	gap: 12px;
-	padding: 80px 40px;
+	padding: 60px 40px;
+	background-color: #FFFFFF;
+	border-radius: 16px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .empty-illustration {
@@ -368,100 +293,15 @@ export default {
 }
 
 .empty-title {
-	font-size: 17px;
+	font-size: 16px;
 	font-weight: 600;
 	color: #1A1A2E;
 }
 
 .empty-desc {
-	font-size: 14px;
+	font-size: 13px;
 	color: #9CA3AF;
 	text-align: center;
-	line-height: 1.5;
-}
-
-/* 自定义弹窗 */
-.modal-mask {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(0, 0, 0, 0.5);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 9999;
-	padding: 0 20px;
-}
-
-.modal-content {
-	width: 100%;
-	max-width: 320px;
-	background-color: #FFFFFF;
-	border-radius: 16px;
-	overflow: hidden;
-}
-
-.modal-header {
-	padding: 20px;
-	text-align: center;
-	border-bottom: 1px solid #F3F4F6;
-}
-
-.modal-title {
-	font-size: 18px;
-	font-weight: 600;
-	color: #1A1A2E;
-}
-
-.modal-body {
-	padding: 24px 20px;
-	display: flex;
-	justify-content: center;
-}
-
-.class-code-input {
-	width: 100%;
-	height: 48px;
-	background-color: #F9FAFB;
-	border: 1px solid #E5E7EB;
-	border-radius: 12px;
-	padding: 0 16px;
-	font-size: 16px;
-	color: #1A1A2E;
-	text-align: center;
-	letter-spacing: 4px;
-	box-sizing: border-box;
-}
-
-.modal-footer {
-	display: flex;
-	border-top: 1px solid #F3F4F6;
-}
-
-.modal-btn {
-	flex: 1;
-	padding: 16px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.modal-btn.cancel {
-	border-right: 1px solid #F3F4F6;
-}
-
-.modal-btn.cancel .btn-text {
-	color: #6B7280;
-}
-
-.modal-btn.confirm .btn-text {
-	color: #4F6EF7;
-	font-weight: 600;
-}
-
-.btn-text {
-	font-size: 16px;
+	line-height: 1.6;
 }
 </style>
