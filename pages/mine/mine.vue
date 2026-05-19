@@ -2,13 +2,21 @@
 	<view class="page">
 		<!-- 用户信息卡片 -->
 		<view class="user-card">
-			<view class="user-avatar">
-				<image class="avatar-img" src="/static/logo.png" mode="aspectFill"></image>
+			<view class="user-avatar" @click.stop="uploadAvatar">
+				<image 
+					class="avatar-img" 
+					:src="userInfo.avatar && userInfo.avatar.startsWith('http') ? userInfo.avatar : '/static/logo.png'" 
+					mode="aspectFill"
+					@error="onAvatarError"
+					@load="onAvatarLoad"
+				></image>
+				<view class="edit-badge">
+					<uni-icons type="camera" :size="12" color="#FFFFFF"></uni-icons>
+				</view>
 			</view>
-			<view class="user-info">
-				<text class="username">{{ userInfo.name }}</text>
-				<text class="user-detail">{{ userInfo.college }} · {{ userInfo.class }}</text>
-				<text class="user-detail">学号 {{ userInfo.studentId }}</text>
+			<view class="user-info" @click="showEditDialog">
+				<text class="username">{{ userInfo.name || '加载中...' }}</text>
+				<text class="edit-hint">点击编辑姓名</text>
 			</view>
 		</view>
 
@@ -55,85 +63,342 @@
 				<text class="logout-text">退出登录</text>
 			</view>
 		</view>
+
+		<!-- 编辑信息弹窗 -->
+		<view class="modal-mask" v-if="showDialog" @click="closeEditDialog">
+			<view class="modal-content" @click.stop>
+				<view class="modal-header">
+					<text class="modal-title">编辑姓名</text>
+				</view>
+				<view class="modal-body">
+					<view class="form-item">
+						<input 
+							class="form-input" 
+							v-model="editForm.name" 
+							placeholder="请输入姓名"
+							:focus="showDialog"
+						/>
+					</view>
+				</view>
+				<view class="modal-footer">
+					<view class="modal-btn cancel" @click="closeEditDialog">
+						<text class="btn-text">取消</text>
+					</view>
+					<view class="modal-btn confirm" @click="saveUserInfo">
+						<text class="btn-text">保存</text>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
 <script>
-	export default {
-		data() {
-			return {
-				userInfo: {
-					name: '加载中...',
-					studentId: '',
-					college: '',
-					class: ''
-				},
-				stats: {
-					total: 0,
-					completed: 0,
-					pending: 0
-				}
-			}
-		},
-		onShow() {
-			this.loadUserInfo()
-		},
-		methods: {
-			// 加载用户信息
-			loadUserInfo() {
-				const that = this
-				const { getUserInfo } = require('../../api/student.js')
-				const { getUserId } = require('../../utils/auth.js')
-				
-				const userId = getUserId()
-				getUserInfo(userId).then(result => {
-					if (result.code === 200) {
-						that.userInfo = {
-							name: result.data.name || result.data.username,
-							studentId: result.data.id,
-							college: '考研学院', // 后端没有返回，使用默认值
-							class: '学生'
-						}
-					}
-				}).catch(error => {
-					console.error('加载用户信息失败:', error)
-				})
+export default {
+	data() {
+		return {
+			showDialog: false,
+			userInfo: {
+				name: '加载中...',
+				avatar: '',
+				username: '',
+				role: 1
 			},
-			
-			goToPage(type) {
-				uni.showToast({
-					title: '功能开发中',
-					icon: 'none'
-				})
+			editForm: {
+				name: ''
 			},
-			
-			logout() {
-				const { clearAuth, goToLogin } = require('../../utils/auth.js')
-				
-				uni.showModal({
-					title: '提示',
-					content: '确认退出登录？',
-					success: (res) => {
-						if (res.confirm) {
-							// 清除登录信息
-							clearAuth()
-							
-							uni.showToast({
-								title: '已退出',
-								icon: 'success',
-								duration: 1500
-							})
-							
-							// 跳转到登录页
-							setTimeout(() => {
-								goToLogin()
-							}, 1500)
-						}
-					}
-				})
+			stats: {
+				total: 0,
+				completed: 0,
+				pending: 0
 			}
 		}
+	},
+	onShow() {
+		this.loadUserInfo()
+	},
+	methods: {
+		// 获取用户ID
+		getUserId() {
+			return uni.getStorageSync('userId')
+		},
+		
+		// 头像加载成功
+		onAvatarLoad(e) {
+			console.log('头像加载成功:', this.userInfo.avatar)
+		},
+		
+		// 头像加载失败
+		onAvatarError(e) {
+			console.error('头像加载失败:', this.userInfo.avatar, e)
+			// 加载失败时使用默认头像
+			this.userInfo.avatar = '/static/logo.png'
+		},
+		
+		// 加载用户信息
+		loadUserInfo() {
+			const that = this
+			const userId = this.getUserId()
+			if (!userId) {
+				console.log('未登录，跳转到登录页')
+				return
+			}
+			
+			console.log('开始获取用户信息，userId:', userId)
+			
+			// 直接使用 uni.request 调用 API
+			const token = uni.getStorageSync('token')
+			const BASE_URL = 'http://192.168.190.160:8080'
+			
+			uni.request({
+				url: BASE_URL + '/api/student/getUserInfo',
+				method: 'GET',
+				data: { userId: userId },
+				header: {
+					'Authorization': token ? `Bearer ${token}` : '',
+					'Content-Type': 'application/json'
+				},
+				success: function(res) {
+					console.log('getUserInfo接口返回完整数据:', res)
+					console.log('getUserInfo接口返回的data:', res.data)
+					
+					if (res.data.code === 200) {
+						that.userInfo = {
+							name: res.data.data.name || res.data.data.username || '未设置',
+							avatar: res.data.data.avatar || '',
+							username: res.data.data.username || '',
+							role: res.data.data.role || 1
+						}
+						console.log('用户信息已更新:', that.userInfo)
+					}
+				},
+				fail: function(error) {
+					console.error('加载用户信息失败:', error)
+				}
+			})
+		},
+		
+		goToPage(type) {
+			uni.showToast({
+				title: '功能开发中',
+				icon: 'none'
+			})
+		},
+		
+		// 显示编辑弹窗
+		showEditDialog() {
+			this.editForm = {
+				name: this.userInfo.name
+			}
+			this.showDialog = true
+		},
+		
+		// 关闭编辑弹窗
+		closeEditDialog() {
+			this.showDialog = false
+		},
+		
+		// 上传头像
+		uploadAvatar() {
+			const that = this
+			const userId = this.getUserId()
+			if (!userId) {
+				uni.showToast({
+					title: '请先登录',
+					icon: 'none'
+				})
+				return
+			}
+			
+			uni.chooseImage({
+				count: 1,
+				sizeType: ['compressed'],
+				sourceType: ['album', 'camera'],
+				success: function(res) {
+					const tempFilePath = res.tempFilePaths[0]
+					console.log('选择的图片:', tempFilePath)
+					
+					uni.showLoading({
+						title: '上传中...'
+					})
+					
+					// 直接使用 uni.uploadFile 上传图片
+					const token = uni.getStorageSync('token')
+					const BASE_URL = 'http://192.168.190.160:8080'
+					
+					uni.uploadFile({
+						url: BASE_URL + `/api/student/uploadAvatar/${userId}`,
+						filePath: tempFilePath,
+						name: 'file',
+						header: {
+							'Authorization': token ? `Bearer ${token}` : ''
+						},
+						success: function(uploadRes) {
+							uni.hideLoading()
+							
+							console.log('图片上传成功:', uploadRes)
+							
+							if (uploadRes.statusCode === 200) {
+								const data = JSON.parse(uploadRes.data)
+								console.log('上传头像解析后的数据:', data)
+								
+								if (data.code === 200 && data.data) {
+									const avatarUrl = data.data
+									console.log('获取到的头像URL:', avatarUrl)
+									
+									// 更新本地显示
+									that.userInfo.avatar = avatarUrl
+									
+									uni.showToast({
+										title: '上传成功',
+										icon: 'success'
+									})
+									
+									// 重新加载用户信息
+									setTimeout(function() {
+										that.loadUserInfo()
+									}, 1500)
+								} else {
+									uni.showToast({
+										title: data.message || '上传失败',
+										icon: 'none'
+									})
+								}
+							} else {
+								uni.showToast({
+									title: '上传失败',
+									icon: 'none'
+								})
+							}
+						},
+						fail: function(err) {
+							uni.hideLoading()
+							console.error('上传图片失败:', err)
+							uni.showToast({
+								title: '上传失败',
+								icon: 'none'
+							})
+						}
+					})
+				},
+				fail: function(err) {
+					console.error('选择图片失败:', err)
+					uni.showToast({
+						title: '选择图片失败',
+						icon: 'none'
+					})
+				}
+			})
+		},
+		
+		// 保存用户信息
+		saveUserInfo() {
+			const that = this
+			if (!this.editForm.name || this.editForm.name.trim() === '') {
+				uni.showToast({
+					title: '请输入姓名',
+					icon: 'none'
+				})
+				return
+			}
+			
+			const userId = this.getUserId()
+			if (!userId) {
+				uni.showToast({
+					title: '请先登录',
+					icon: 'none'
+				})
+				return
+			}
+			
+			uni.showLoading({
+				title: '保存中...'
+			})
+			
+			const name = this.editForm.name.trim()
+			
+			console.log('保存用户信息，name:', name, 'userId:', userId)
+			
+			// 直接使用 uni.request 调用 API
+			const token = uni.getStorageSync('token')
+			const BASE_URL = 'http://192.168.190.160:8080'
+			
+			uni.request({
+				url: BASE_URL + '/api/student/setUserInfo',
+				method: 'POST',
+				data: { 
+					userId: userId,
+					username: name,
+					name: name
+				},
+				header: {
+					'Authorization': token ? `Bearer ${token}` : '',
+					'Content-Type': 'application/json'
+				},
+				success: function(res) {
+					uni.hideLoading()
+					
+					console.log('保存用户信息响应:', res)
+					
+					if (res.data.code === 200) {
+						that.closeEditDialog()
+						
+						uni.showToast({
+							title: '保存成功',
+							icon: 'success'
+						})
+						
+						// 重新加载用户信息
+						setTimeout(function() {
+							that.loadUserInfo()
+						}, 1500)
+					} else {
+						uni.showToast({
+							title: res.data.message || '保存失败',
+							icon: 'none'
+						})
+					}
+				},
+				fail: function(error) {
+					uni.hideLoading()
+					console.error('保存用户信息失败:', error)
+					
+					uni.showToast({
+						title: '保存失败',
+						icon: 'none'
+					})
+				}
+			})
+		},
+		
+		logout() {
+			uni.showModal({
+				title: '提示',
+				content: '确认退出登录？',
+				success: function(res) {
+					if (res.confirm) {
+						// 清除登录信息
+						uni.removeStorageSync('token')
+						uni.removeStorageSync('userId')
+						
+						uni.showToast({
+							title: '已退出',
+							icon: 'success',
+							duration: 1500
+						})
+						
+						// 跳转到登录页
+						setTimeout(function() {
+							uni.reLaunch({
+								url: '/pages/login/login'
+							})
+						}, 1500)
+					}
+				}
+			})
+		}
 	}
+}
 </script>
 
 <style scoped>
@@ -157,6 +422,7 @@
 
 	.user-avatar {
 		flex-shrink: 0;
+		position: relative;
 	}
 
 	.avatar-img {
@@ -167,9 +433,24 @@
 		border: 2px solid #F3F4F6;
 	}
 
+	.edit-badge {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		width: 20px;
+		height: 20px;
+		background-color: #4F6EF7;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 2px solid #FFFFFF;
+	}
+
 	.user-info {
 		display: flex;
 		flex-direction: column;
+		justify-content: center;
 		gap: 4px;
 	}
 
@@ -179,8 +460,8 @@
 		color: #1A1A2E;
 	}
 
-	.user-detail {
-		font-size: 13px;
+	.edit-hint {
+		font-size: 12px;
 		color: #9CA3AF;
 	}
 
@@ -273,5 +554,94 @@
 		font-size: 15px;
 		color: #FF3B30;
 		font-weight: 500;
+	}
+
+	/* 编辑信息弹窗 */
+	.modal-mask {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background-color: rgba(0, 0, 0, 0.5);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 9999;
+		padding: 0 20px;
+	}
+
+	.modal-content {
+		width: 100%;
+		max-width: 340px;
+		background-color: #FFFFFF;
+		border-radius: 16px;
+		overflow: hidden;
+	}
+
+	.modal-header {
+		padding: 20px;
+		text-align: center;
+		border-bottom: 1px solid #F3F4F6;
+	}
+
+	.modal-title {
+		font-size: 18px;
+		font-weight: 600;
+		color: #1A1A2E;
+	}
+
+	.modal-body {
+		padding: 24px 20px;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.form-item {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.form-input {
+		height: 48px;
+		background-color: #F9FAFB;
+		border: 1px solid #E5E7EB;
+		border-radius: 12px;
+		padding: 0 16px;
+		font-size: 16px;
+		color: #1A1A2E;
+		box-sizing: border-box;
+		text-align: center;
+	}
+
+	.modal-footer {
+		display: flex;
+		border-top: 1px solid #F3F4F6;
+	}
+
+	.modal-btn {
+		flex: 1;
+		padding: 16px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.modal-btn.cancel {
+		border-right: 1px solid #F3F4F6;
+	}
+
+	.modal-btn.cancel .btn-text {
+		color: #6B7280;
+	}
+
+	.modal-btn.confirm .btn-text {
+		color: #4F6EF7;
+		font-weight: 600;
+	}
+
+	.btn-text {
+		font-size: 16px;
 	}
 </style>

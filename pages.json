@@ -23,7 +23,7 @@
 		{
 			"path": "pages/note/note",
 			"style": {
-				"navigationBarTitleText": "笔记"
+				"navigationBarTitleText": "课程"
 			}
 		},
 		{
@@ -56,23 +56,30 @@
 		"selectedColor": "#4F6EF7",
 		"borderStyle": "white",
 		"backgroundColor": "#FFFFFF",
-		"custom": false,
 		"list": [
 			{
 				"pagePath": "pages/index/index",
-				"text": "作业"
+				"text": "首页",
+				"iconPath": "static/tabbar/home.png",
+				"selectedIconPath": "static/tabbar/home_active.png"
 			},
 			{
 				"pagePath": "pages/message/message",
-				"text": "消息"
+				"text": "消息",
+				"iconPath": "static/tabbar/message.png",
+				"selectedIconPath": "static/tabbar/message_active.png"
 			},
 			{
 				"pagePath": "pages/note/note",
-				"text": "笔记"
+				"text": "课程",
+				"iconPath": "static/tabbar/class.png",
+				"selectedIconPath": "static/tabbar/class_active.png"
 			},
 			{
 				"pagePath": "pages/mine/mine",
-				"text": "我"
+				"text": "我",
+				"iconPath": "static/tabbar/mine.png",
+				"selectedIconPath": "static/tabbar/mine_active.png"
 			}
 		]
 	}

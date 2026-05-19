@@ -83,6 +83,8 @@
 		onLoad() {
 			this.loadAllWork()
 		},
+		onShow() {
+		},
 		onPullDownRefresh() {
 			console.log('触发下拉刷新')
 			this.loadAllWork()
@@ -122,6 +124,10 @@
 							// 转换数据格式
 							if (Array.isArray(res.data.data)) {
 								that.assignmentList = res.data.data.map(function(item) {
+									// 使用 isSubmitted 判断是否已提交
+									// isSubmitted: 1 表示已提交，0 或 null 表示未提交
+									const isSubmitted = item.isSubmitted === 1
+									
 									return {
 										id: item.assignmentId,
 										title: item.title,
@@ -130,9 +136,9 @@
 										studentName: '我',
 										submitTime: item.deadline || '未设置截止时间',
 										subject: that.getSubjectFromTitle(item.title),
-										status: item.status === 0 ? 'pending' : 'completed',
-										statusText: item.status === 0 ? '待完成' : '已完成',
-										score: item.status === 1 ? item.totalScore : null
+										status: isSubmitted ? 'completed' : 'pending',
+										statusText: isSubmitted ? '已完成' : '待完成',
+										score: isSubmitted ? item.totalScore : null
 									}
 								})
 								
